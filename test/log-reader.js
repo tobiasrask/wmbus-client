@@ -17,7 +17,7 @@ describe('Log reader', () => {
     it('It should load log file and push data to provided buffer', done => {
 
       // Load test data log file, which contains list of keyed values
-      let logFile = path.join(__dirname, './../data/log-reader-test-data.log');
+      let logFile = path.join(__dirname, './test_data/log-reader-test-data.log');
 
       let buffer = new DataBuffer();
       let reader = new LogReader({ source: logFile, buffer: buffer });

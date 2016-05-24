@@ -7,23 +7,22 @@ class DataPacket {
   /**
   * Construct data buffer.
   *
-  * @param params with following keys:
-  *   - buffer
-  *     Raw data buffer.
+  * @param buffer
+  *   Raw data buffer
+  * @param options with following keys:
   *   - timestamp
-  *     Timestamp for this data packet.
+  *     Timestamp for this data packet, default to current time
   *   - tag
   *     Additional tag for this data packet.
   */
-  constructor(params = {}) {
-    this._buffer = params.hasOwnProperty('buffer') ?
-      params.buffer : new Buffer();
+  constructor(buffer, options = {}) {
+    this._buffer = buffer;
 
-    this._timestamp = params.hasOwnProperty('timestamp') ?
-      params.timestamp : new Date().getTime();
+    this._timestamp = options.hasOwnProperty('timestamp') ?
+      options.timestamp : new Date().getTime();
 
-    this._tag = params.hasOwnProperty('tag') ?
-      params.tag : null;      
+    this._tag = options.hasOwnProperty('tag') ?
+      options.tag : null;      
   }
 
   /**

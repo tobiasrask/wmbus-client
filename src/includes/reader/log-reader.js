@@ -59,8 +59,7 @@ class LogReader extends DataSource {
   */
   loadFile(filename) {
     var self = this;
-    console.log(`Loading data from file: ${filename}`);
-
+    // console.log(`Loading data from file: ${filename}`);
     fs.readFile(filename, function(err, data) {
       // TODO: Signal error
       if (err)
