@@ -140,6 +140,37 @@ class WirelessMBusMeter extends Meter {
   getMeterAddress(details) {
     return details && details.has('BLOCK1_A') ? details.get('BLOCK1_A') : null;
   }
+
+  /**
+  * Extract meter control field from details.
+  *
+  * @param details
+  * @return address
+  */
+  getMeterControlField(details) {
+    return details && details.has('BLOCK1_C') ? details.get('BLOCK1_C') : null;
+  }
+
+  /**
+  * Extract meter manufacturer id.
+  *
+  * @param details
+  * @return address
+  */
+  getMeterManufacturerField(details) {
+    return details && details.has('BLOCK1_M') ? details.get('BLOCK1_M') : null;
+  }
+
+  /**
+  * Extract meter version id.
+  *
+  * @param details
+  * @return address
+  */
+  getVersionField(details) {
+    return details && details.has('BLOCK1_VERSION') ?
+      details.get('BLOCK1_VERSION') : null;
+  }
 }
 
 export default WirelessMBusMeter;

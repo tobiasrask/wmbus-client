@@ -24,7 +24,6 @@ class Telegram {
   processTelegramData() {
     this._meterDetails = this._meter ?
       this._meter.getMeterDetails(this._packet ) : null;
-    // console.log(this._meterDetails);
   }
 
   /**
@@ -60,13 +59,40 @@ class Telegram {
   *
   * @return telegram id of null if meter not recognized or meter not assigned
   */
-  getMeterAddress() {
-    if (!this._meter)
-      return null;
-
-    return this._meter.getMeterAddress(this._meterDetails);
+  getAddress() {
+    return this._meter ?
+      this._meter.getMeterAddress(this._meterDetails) : null;
   }
 
+  /*
+  * Returns meter address based on data packet.
+  *
+  * @return telegram id of null if meter not recognized or meter not assigned
+  */
+  getControlField() {
+    return this._meter ?
+      this._meter.getMeterControlField(this._meterDetails) : null;
+  }
+
+  /*
+  * Returns meter address based on data packet.
+  *
+  * @return telegram id of null if meter not recognized or meter not assigned
+  */
+  getManufacturer() {
+    return this._meter ?
+      this._meter.getMeterManufacturerField(this._meterDetails) : null;
+  }
+
+  /*
+  * Returns meter address based on data packet.
+  *
+  * @return telegram id of null if meter not recognized or meter not assigned
+  */
+  getVersion() {
+    return this._meter ?
+      this._meter.getVersionField(this._meterDetails) : null;
+  }
 }
 
 export default Telegram;
