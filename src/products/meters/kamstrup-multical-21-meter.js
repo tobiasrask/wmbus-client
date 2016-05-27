@@ -1,4 +1,5 @@
 import WirelessMBusMeter from "./../../includes/meter/wmbus-meter"
+import crypto from 'crypto'
 
 // Static instance
 var instance = null;
@@ -15,15 +16,21 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   *
   * @param telegram
   *   Telegram to be processed.
+  * @param options
   * @return boolean succeed
   */
-  processTelegramData(telegram) {
+  processTelegramData(telegram, options = {}) {
 
     if (!super.processTelegramData(telegram))
       return false;
 
     telegram.setValue('BLOCKX_FN', Buffer('0000', "hex"));
     telegram.setValue('BLOCKX_BC', Buffer('00', "hex"));
+
+    if (options.hasOwnProperty('key'))
+      telegram.setValue('BLOCK2_DECRYPTED_ELL_DATA',
+        this.decryptTelegram(telegram, options));
+
     return true;
   }
 
@@ -38,7 +45,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   *
   * CC-FIELD (1 byte)
   *   ???
-  * 
+  *
   * ACC (1 byte)
   *   Access counter number, runs from 00 to ff.
   *
@@ -47,7 +54,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   *
   * CRC-FIELD (2 bytes)
   *   Cyclic Redundancy Check for data.
-  * 
+  *
   * @return mapping
   *   Object with mapping details
   */
@@ -72,7 +79,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
       'BLOCK2_CRC': {
         start: 17,
         length: 2
-        }        
+        }
       };
   }
 
@@ -142,16 +149,29 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   }
 
   /**
+  * Extract meter 
+  *
+  * @param telegram
+  * @return telegram
+  */
+  getDecryptedELLData(telegram) {
+    let values = telegram.getValues();
+
+    return values.has('BLOCK2_DECRYPTED_ELL_DATA') ?
+      values.get('BLOCK2_DECRYPTED_ELL_DATA') : null;
+  }
+
+  /**
   * Returns initialization vector for decrypt the ELL data.
-  * Kamstrup uses AES with CTR (no padding) encryption. To decrypt data, 
+  * Kamstrup uses AES with CTR (no padding) encryption. To decrypt data,
   * we need to fetch iv from M, A, CC and SN field with FN and BC (Validate these).
   *
   * @param telegram
-  * @return iv
+  * @return iv buffer
   */
-  getInitializationVector(telegram) {
+  getIV(telegram) {
     let buffers = [];
-    let values = telegram.getValues();    
+    let values = telegram.getValues();
     let blockMap = [
       'BLOCK1_M',
       'BLOCK1_A',
@@ -162,6 +182,61 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
         buffers.push(values.get(fieldName));
       });
     return Buffer.concat(buffers, 16);
+  }
+
+  /**
+  * Decrypt telegram
+  *
+  * @param telegram
+  * @param options with following key values:
+  *   key - AES key for this telegram meter
+  */
+  decryptTelegram(telegram, options = {}) {
+    let key = options.hasOwnProperty('key') ? options.key : false;
+
+    // TODO: Fetch keys from local store
+    let encryptedData = this.getEncryptedELLData(telegram)
+      .get('BLOCK2_ENCRYPTED_ELL_DATA');
+
+    let iv = this.getIV(telegram);
+    return this.decryptBuffer(encryptedData, key, iv);    
+  }
+
+  /**
+  * Decrypt given buffer using AES.
+  * TODO: Move this to own module?
+  *
+  * @param buffer
+  *   Encrypted buffer
+  * @param key
+  *   AES key
+  * @param iv
+  *   Initialize vector
+  * @return decrypted data
+  */
+  decryptBuffer(buffer, key, iv, algorithm = 'aes-128-ctr') {
+    let decipher = crypto.createDecipheriv(algorithm, key, iv);
+    decipher.setAutoPadding(false);
+    return Buffer.concat([decipher.update(buffer), decipher.final()]);
+  }
+
+  /**
+  * Returns encrypted ELL data.
+  *
+  * @param telegram
+  * @return data buffer
+  */
+  getEncryptedELLData(telegram) {
+    let packet = telegram.getPacket();
+    let startIndex = 17;
+    let length = packet.getBuffer().length - startIndex;
+
+    return this.fetchData(packet, {
+      BLOCK2_ENCRYPTED_ELL_DATA: {
+        start: startIndex,
+        length: length
+      }
+    });
   }
 
   /**

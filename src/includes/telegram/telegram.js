@@ -49,6 +49,16 @@ class Telegram {
   }
 
   /**
+  * Get telegram values.
+  *
+  * @param key
+  * @return values
+  */
+  getValue(key) {
+    return this._values.has(key) ? this._values.get(key) : null;
+  }
+
+  /**
   * Return telegram raw packet.
   *
   * @return packet

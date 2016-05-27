@@ -20,13 +20,18 @@ describe('Tests for KamstrupMultical21Meter', () => {
 
       // Load test data log file, which contains list of keyed values
       let tests = require('./test_data/test-meters');
-      let testCase = tests['kamstrup']['multical21'][0];
+      let input = tests['kamstrup']['multical21'][0];
 
-      let packet = new DataPacket(Buffer(testCase['telegram'], "hex"));
+      let packet = new DataPacket(Buffer(input['telegram'], "hex"));
       let telegram = new WirelessMBusTelegram(packet);
 
       let meter = KamstrupMultical21Meter.getInstance();
-      meter.processTelegramData(telegram);
+      
+      // Process telegram
+      let options = {
+        key: Buffer(input['key'], 'hex')
+      }
+      meter.processTelegramData(telegram, options);
 
       if (telegram.getPacket() != packet)
         return done(new Error("Telegram didn't return expected packet"));
@@ -46,9 +51,11 @@ describe('Tests for KamstrupMultical21Meter', () => {
       if (meter.getELLCRC(telegram).toString('hex') != "39a3")
         return done(new Error("Invalid ELL CRC field"));
 
-      if (meter.getInitializationVector(telegram).toString('hex') !=
-          "2d2c454571631b162031fb7c20000000")
+      if (meter.getIV(telegram).toString('hex') != input['iv'])
         return done(new Error("Invalid initialization vector"));
+
+      if (meter.getDecryptedELLData(telegram).toString('hex') != input['value'])
+        return done(new Error("Telegram decryption failed"));
 
       done();
     })
