@@ -12,18 +12,40 @@ class Telegram {
   */
   constructor(packet = null, options = {}) {
     this._packet = packet;
-    this._meter = options.hasOwnProperty('meter') ? options.meter : null;
 
-    // Process packet data
-    this.processTelegramData();
+    // Telegram data values, check out Maters.
+    this._values = new Map();
   }
 
   /**
-  * Process telegram data.
+  * Merge passed values to telegram.
+  *
+  * @param values
+  *   Map of values
   */
-  processTelegramData() {
-    this._meterDetails = this._meter ?
-      this._meter.getMeterDetails(this._packet ) : null;
+  setValues(values) {
+    values.forEach((value, key) => {
+      this._values.set(key, value);
+    }, this);
+  }
+
+  /**
+  * Set telegram value.
+  *
+  * @param key
+  * @param value
+  */
+  setValue(key, value) {
+    this._values.set(key, value);
+  }
+
+  /**
+  * Get telegram values.
+  *
+  * @return values
+  */
+  getValues() {
+    return this._values;
   }
 
   /**
@@ -34,64 +56,6 @@ class Telegram {
   */
   getPacket() {
     return this._packet;
-  }
-
-  /**
-  * Set telegram meter.
-  *
-  * @param meter
-  */
-  setMeter(meter) {
-    this._meter = meter;
-  }
-
-  /**
-  * Get source meter for telegram.
-  *
-  * @return meter objector null, if meter is not defined.
-  */
-  getMeter() {
-    return this._meter;
-  }
-
-  /**
-  * Returns meter address based on data packet.
-  *
-  * @return telegram id of null if meter not recognized or meter not assigned
-  */
-  getAddress() {
-    return this._meter ?
-      this._meter.getMeterAddress(this._meterDetails) : null;
-  }
-
-  /*
-  * Returns meter address based on data packet.
-  *
-  * @return telegram id of null if meter not recognized or meter not assigned
-  */
-  getControlField() {
-    return this._meter ?
-      this._meter.getMeterControlField(this._meterDetails) : null;
-  }
-
-  /*
-  * Returns meter address based on data packet.
-  *
-  * @return telegram id of null if meter not recognized or meter not assigned
-  */
-  getManufacturer() {
-    return this._meter ?
-      this._meter.getMeterManufacturerField(this._meterDetails) : null;
-  }
-
-  /*
-  * Returns meter address based on data packet.
-  *
-  * @return telegram id of null if meter not recognized or meter not assigned
-  */
-  getVersion() {
-    return this._meter ?
-      this._meter.getVersionField(this._meterDetails) : null;
   }
 }
 

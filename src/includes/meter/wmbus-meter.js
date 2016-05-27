@@ -5,46 +5,6 @@ var instance = null;
 
 /**
 * Wireless M-Bus meter.
-*
-* Block 2
-* 
-* Data header contans CI, ACC, STAT, SIG.
-* 
-*
-* CI-FIELD (1 byte)
-*   Application header, indicates application data type.
-*
-* ACC/CC-FIELD (1 byte)
-*   Access counter number, runs from 00 to ff
-*
-* STATUS-FIELD (1 byte)
-*   Signals about alars and errors
-*
-* CONGIGURATION/SIG-FIELD (2 bytes)
-*   Information about encryption method, 
-*
-* DATA-FIELD (n bytes)
-*
-* CRC-FIELD (2 bytes)
-*
-*
-* OR Encrypted Extended Link Layer (ELL):
-*
-* CI-FIELD (1 byte)
-*   Application header, indicates application data type.
-*
-* CC-FIELD (1 byte)
-*
-* ACC-FIELD (1 byte)
-*
-* SN-FIELD (4 bytes)
-*   Encryption mode, time field, session counter
-*
-* FN-FIELD (2 bytes)
-*   Frame number
-*
-* BC-FIELD (1 byte)
-*   Block counter
 */
 class WirelessMBusMeter extends Meter {
 
@@ -56,6 +16,36 @@ class WirelessMBusMeter extends Meter {
   static getInstance() {
     if (!instance) instance = new WirelessMBusMeter();
     return instance;
+  }
+
+  /**
+  * Process telegram by fetching meter values from raw data packet.
+  *
+  * @param telegram
+  *   Telegram to be processed.
+  * @return boolean succeed
+  */
+  processTelegramData(telegram) {
+    if (!telegram)
+      return false;
+
+    // Get existing values and apply data
+    let packet = telegram.getPacket();
+    telegram.setValues(this.fetchData(packet, this.getDLLMap()));
+    telegram.setValues(this.fetchData(packet, this.getELLMap()));
+
+    return true;
+  }
+
+  /**
+  * Returns instructions how to map telegram data packet to extended data link
+  * layer.
+  * 
+  * @return mapping
+  *   Object with mapping details
+  */
+  getELLMap() {
+    return {};
   }
 
   /**
@@ -87,14 +77,10 @@ class WirelessMBusMeter extends Meter {
   *     device id (4 bytes)
   *     device version (1 byte) and
   *     device type (1 byte)
-  *
-  * CRC-FIELD (2 bytes)
-  *   Cyclic Redundancy Check for data.
-  * 
   * @return mapping
   *   Object with mapping details
   */
-  getDataLinkLayerMap() {
+  getDLLMap() {
     return {
       'BLOCK1_L': {
         start: 0,
@@ -123,10 +109,6 @@ class WirelessMBusMeter extends Meter {
       'BLOCK1_TYPE': {
         start: 9,
         length: 1
-        },
-      'BLOCK1_CRC': {
-        start: 10,
-        length: 2
         }
       };
   }
@@ -134,42 +116,53 @@ class WirelessMBusMeter extends Meter {
   /**
   * Extract meter address from details.
   *
-  * @param details
-  * @return address
+  * @param telegram
+  * @return address field
   */
-  getMeterAddress(details) {
-    return details && details.has('BLOCK1_A') ? details.get('BLOCK1_A') : null;
+  getAddressField(telegram) {
+    let values = telegram.getValues();
+
+    return values.has('BLOCK1_A') ?
+      values.get('BLOCK1_A') : null;
   }
 
   /**
   * Extract meter control field from details.
   *
-  * @param details
-  * @return address
+  * @param telegram
+  * @return control field
   */
-  getMeterControlField(details) {
-    return details && details.has('BLOCK1_C') ? details.get('BLOCK1_C') : null;
+  getControlField(telegram) {
+    let values = telegram.getValues();
+
+    return values.has('BLOCK1_C') ?
+      values.get('BLOCK1_C') : null;
   }
 
   /**
   * Extract meter manufacturer id.
   *
-  * @param details
-  * @return address
+  * @param telegram
+  * @return manufacturer field
   */
-  getMeterManufacturerField(details) {
-    return details && details.has('BLOCK1_M') ? details.get('BLOCK1_M') : null;
+  getManufacturerField(telegram) {
+    let values = telegram.getValues();
+
+    return values.has('BLOCK1_M') ?
+      values.get('BLOCK1_M') : null;
   }
 
   /**
   * Extract meter version id.
   *
-  * @param details
-  * @return address
+  * @param telegram
+  * @return version field
   */
-  getVersionField(details) {
-    return details && details.has('BLOCK1_VERSION') ?
-      details.get('BLOCK1_VERSION') : null;
+  getVersionField(telegram) {
+    let values = telegram.getValues();
+    
+    return values.has('BLOCK1_VERSION') ?
+      values.get('BLOCK1_VERSION') : null;
   }
 }
 

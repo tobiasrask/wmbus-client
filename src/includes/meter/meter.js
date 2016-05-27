@@ -4,29 +4,41 @@
 class Meter {
 
   /**
+  * Process telegram by fetching meter values from raw data packet.
+  *
+  * @param telegram
+  *   Telegram to be processed.
+  * @return boolean succeed
+  */
+  processTelegramData(telegram) {
+    return false;
+  }
+
+  /**
   * Extract basic meter information from telegram data packet.
   *
   * @param packet
   *   Data packet object
+  * @param map
+  *   Map for fetching packet detais
   * return meter details or null
   */
-  getMeterDetails(packet) {
-
+  fetchData(packet, map) {
     if (packet == undefined || packet == null)
       return null;
 
     let details = new Map();
     let rawData = packet.getBuffer();
-    let map = this.getDataLinkLayerMap();
 
     Object.keys(map).forEach(key => {
-      // Prepare value
       let value = Buffer(map[key].length);
       value.fill(0);
 
       // Apply buffer data from packet
       let index = 0;
-      for (let i = map[key].start; i < (map[key].start + map[key].length); i++) {
+      let pointer = map[key].start + map[key].length;
+
+      for (let i = map[key].start; i < pointer; i++) {
         value[index] = rawData[i];
         index++;
       }
@@ -40,21 +52,23 @@ class Meter {
   */
 
   /**
-  * Returns singleton instance of meter.
-  *
-  * @return instance
-  */
-  static getInstance() {
-    return null;
-  }
-
-  /**
   * Returns instructions how to map telegram data packet to meter information.
   * 
   * @return mapping
   *   Object with mapping details
   */
-  getDataLinkLayerMap() {
+  getDLLMap() {
+    return {};
+  }
+
+  /**
+  * Returns instructions how to map telegram data packet to extended data link
+  * layer.
+  * 
+  * @return mapping
+  *   Object with mapping details
+  */
+  getELLMap() {
     return {};
   }
 
@@ -65,6 +79,15 @@ class Meter {
   * @return address
   */
   getMeterAddress(details) {
+    return null;
+  }
+
+  /**
+  * Returns singleton instance of meter.
+  *
+  * @return instance
+  */
+  static getInstance() {
     return null;
   }
 }
