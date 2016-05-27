@@ -34,18 +34,23 @@ describe('Log reader', () => {
 
         let errors = false;
 
-        // We expect that log file contans values from 1 to 3
-        [1, 2, 3].map(expectedValue => {
-          let bufferItem = buffer.fetch();
+        let bufferItem = buffer.fetch();
+        let lineCounter = 0;
 
+        do {
           if (!bufferItem || 
               !bufferItem.hasOwnProperty('timestamp') ||
               !bufferItem.hasOwnProperty('telegram') ||
-              bufferItem.timestamp != `timestamp_${expectedValue}` ||
-              bufferItem.telegram != `telegram_${expectedValue}`) {
+              bufferItem.timestamp != lineCounter ||
+              bufferItem.telegram.indexOf('2d2c845142631b0') < 0) {
             errors = true;            
           }
-        });
+          bufferItem = buffer.fetch();
+          lineCounter++;
+        } while (bufferItem != null);
+
+        if (lineCounter != 30)
+          return done(new Error("LogReader didn't provide all telegrams"));
 
         if (errors)
           return done(new Error("LogReader didn't provide expected telegrams"));
