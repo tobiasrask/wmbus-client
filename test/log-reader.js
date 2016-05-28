@@ -34,20 +34,19 @@ describe('Log reader', () => {
 
         let errors = false;
 
-        let bufferItem = buffer.fetch();
+        let dataPacket = buffer.fetch();
         let lineCounter = 0;
+        let testBufferProbe = Buffer("2d2c845142631b", "hex");
 
         do {
-          if (!bufferItem || 
-              !bufferItem.hasOwnProperty('timestamp') ||
-              !bufferItem.hasOwnProperty('telegram') ||
-              bufferItem.timestamp != lineCounter ||
-              bufferItem.telegram.indexOf('2d2c845142631b0') < 0) {
+          if (!dataPacket ||
+              dataPacket.getTimestamp() != lineCounter ||
+              dataPacket.getBuffer().indexOf(testBufferProbe) < 0) {
             errors = true;            
           }
-          bufferItem = buffer.fetch();
+          dataPacket = buffer.fetch();
           lineCounter++;
-        } while (bufferItem != null);
+        } while (dataPacket != null);
 
         if (lineCounter != 30)
           return done(new Error("LogReader didn't provide all telegrams"));

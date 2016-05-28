@@ -1,5 +1,6 @@
 import fs from "fs"
 import DataSource from "./data-source"
+import DataPacket from "./../misc/data-packet"
 
 /**
 * Data log reader. Provides data source 
@@ -58,7 +59,7 @@ class LogReader extends DataSource {
   * @param filename
   */
   loadFile(filename) {
-    var self = this;
+    let self = this;
     // console.log(`Loading data from file: ${filename}`);
     fs.readFile(filename, function(err, data) {
       // TODO: Signal error
@@ -77,7 +78,7 @@ class LogReader extends DataSource {
   * @param data
   */
   processLog(data) {
-    var self = this;
+    let self = this;
 
     if (!this._buffer)
       return;
@@ -90,10 +91,9 @@ class LogReader extends DataSource {
           !rowData[1])
         return;
 
-      self._buffer.push({
-        timestamp: rowData[0],
-        telegram: rowData[1],
-      });
+      self._buffer.push(new DataPacket(Buffer(rowData[1], "hex"), {
+        timestamp: rowData[0]
+      }));
     });
   }
 }
