@@ -60,6 +60,12 @@ describe('Tests for KamstrupMultical21Meter', () => {
       if (meter.getDecryptedELLData(telegram).toString('hex') != input['value'])
         return done(new Error("Telegram decryption failed"));
 
+      if (meter.getMeterValue(telegram) != 0)
+        return done(new Error("Telegram meter value test failed"));
+
+      if (meter.getMeterTargetValue(telegram) != 0)
+        return done(new Error("Telegram meter target value test failed"));
+
       done();
     })
   });
@@ -113,7 +119,9 @@ describe('Tests for KamstrupMultical21Meter', () => {
           do {
             let telegram = new WirelessMBusTelegram(dataPacket);
             meter.processTelegramData(telegram, telegramOptions);
-            // console.log(telegram);
+
+            //console.log("Meter value: " + meter.getMeterValue(telegram));
+            //console.log("Meter target value: " + meter.getMeterTargetValue(telegram));
 
             dataPacket = buffer.fetch();
             lineCounter++;

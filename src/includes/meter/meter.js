@@ -18,7 +18,7 @@ class Meter {
   * Extract basic meter information from telegram data packet.
   *
   * @param packet
-  *   Data packet object
+  *   Data packet object or buffer object
   * @param map
   *   Map for fetching packet detais
   * return meter details or null
@@ -28,7 +28,8 @@ class Meter {
       return null;
 
     let details = new Map();
-    let rawData = packet.getBuffer();
+    let rawData = typeof packet.getBuffer === 'function' ?
+      packet.getBuffer() : packet;
 
     Object.keys(map).forEach(key => {
       let value = Buffer(map[key].length);
@@ -80,6 +81,22 @@ class Meter {
   */
   getMeterAddress(details) {
     return null;
+  }
+
+  /**
+  * Builds and returns reverse buffer.
+  *
+  * @param buffer
+  * @return reverse buffer
+  */
+  reverseBuffer(buffer) {
+    let t = new Buffer(buffer.length)
+
+    for (let i = 0, j = buffer.length - 1; i <= j; ++i, --j) {
+      t[i] = buffer[j];
+      t[j] = buffer[i];
+    }
+    return t;    
   }
 
   /**

@@ -27,9 +27,13 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     telegram.setValue('BLOCKX_FN', Buffer('0000', "hex"));
     telegram.setValue('BLOCKX_BC', Buffer('00', "hex"));
 
-    if (options.hasOwnProperty('key'))
+    if (options.hasOwnProperty('key')) {
       telegram.setValue('BLOCK2_DECRYPTED_ELL_DATA',
         this.decryptTelegram(telegram, options));
+
+      // Fetch meter information
+      telegram.setValues(this.processTelegramValues(telegram, options));
+    }
 
     return true;
   }
@@ -237,6 +241,77 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
         length: length
       }
     });
+  }
+
+  /**
+  * Process telegram values
+  *
+  * @param telegram
+  */
+  processTelegramValues(telegram) {
+    // Retrieve if this is short frame or long frame
+    let data = this.getDecryptedELLData(telegram);
+
+    let shortFrameMap = {
+      'BLOCK3_PLCRC': {
+        start: 0,
+        length: 2
+        },
+      'BLOCK3_FRAME_TYPE': {
+        start: 2,
+        length: 1
+        },
+      'BLOCK3_EXTRA_CRC': {
+        start: 3,
+        length: 4
+        },
+      'BLOCK3_INFO_CODES': {
+        start: 7,
+        length: 2
+        },
+      'BLOCK3_VALUE': {
+        start: 9,
+        length: 4
+        },
+      'BLOCK3_TARGET_VALUE': {
+        start: 13,
+        length: 4
+        }
+      };
+
+    return this.fetchData(data, shortFrameMap);
+  }
+
+  /**
+  * Returns meter value.
+  *
+  * @param telegram
+  * @return meter value
+  *   Reverse buffer converted to number value.
+  */
+  getMeterValue(telegram) {
+    let values = telegram.getValues();
+
+    if (!values.has('BLOCK3_VALUE'))
+      return null;
+
+    let reverseBuffer = this.reverseBuffer(values.get('BLOCK3_VALUE'));
+    return reverseBuffer.readUIntBE(0, 4);
+  }
+
+  /**
+  * Returns meter target value
+  *
+  * @param telegram
+  */
+  getMeterTargetValue(telegram) {
+    let values = telegram.getValues();
+
+    if (!values.has('BLOCK3_TARGET_VALUE'))
+      return null;
+
+    let reverseBuffer = this.reverseBuffer(values.get('BLOCK3_TARGET_VALUE'));
+    return reverseBuffer.readUIntBE(0, 4);
   }
 
   /**

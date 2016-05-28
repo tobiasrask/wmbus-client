@@ -67,6 +67,7 @@ class Telegram {
   getPacket() {
     return this._packet;
   }
+
 }
 
 export default Telegram;
