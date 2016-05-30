@@ -1,4 +1,5 @@
 import fs from "fs"
+import Meter from "./meter"
 
 /**
 * Meter and keyfile importer.
@@ -12,7 +13,10 @@ class MeterImporter {
   * Example:
   * [
   *   {
+  *     "manufacturer": "KAM",
   *     "serial": "00000000",
+  *     "version": "1b",
+  *     "deviceType": "06",
   *     "aes": "0000000000000000",
   *     "label": "My meter"
   *   }
@@ -42,11 +46,26 @@ class MeterImporter {
         return callback(new Error("Unable to parse meter data"));
 
       let meterData = new Map();
-      items.forEach(keyData => {
-        if (keyData.hasOwnProperty('serial'))
-          meterData.set(keyData['serial'], keyData);
-        else
-          console.log("No match...", keyData);
+
+      items.forEach(row => {
+
+        // Validate input values
+        if (!row.hasOwnProperty('manufacturer') ||
+            !row.hasOwnProperty('serial') ||
+            !row.hasOwnProperty('version') ||
+            !row.hasOwnProperty('deviceType'))
+          return;
+
+        // Build meter address
+        let meterAddress = Buffer.concat([
+          Meter.reverseBuffer(Meter.buildManufacturerId(row['manufacturer'])),
+          Meter.reverseBuffer(new Buffer(row['serial'], 'hex')),
+          new Buffer(row['version'], 'hex'),
+          new Buffer(row['deviceType'], 'hex')
+        ]);
+
+        // We use String keys as since Map requires original buffer to match
+        meterData.set(meterAddress.toString('hex'), row);
       });
       callback(null, meterData);
     });

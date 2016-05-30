@@ -1,3 +1,4 @@
+
 import Meter from "./meter"
 
 // Static instance
@@ -23,18 +24,47 @@ class WirelessMBusMeter extends Meter {
   *
   * @param telegram
   *   Telegram to be processed.
+  * @options
+  *    
   * @return boolean succeed
   */
-  processTelegramData(telegram) {
+  processTelegramData(telegram, options = {}) {
     if (!telegram)
       return false;
 
     // Get existing values and apply data
     let packet = telegram.getPacket();
+
+    // Process DLL
     telegram.setValues(this.fetchData(packet, this.getDLLMap()));
+
+    // If filter is enabled, we make sure that meter is 'whitelisted' and
+    // that we have predefined settings for it.
+    if (options.disableMeterFilter && !this.getMeterData(telegram))
+      return false;
+
+    // Process ELL    
     telegram.setValues(this.fetchData(packet, this.getELLMap()));
 
     return true;
+  }
+
+  /**
+  * Retrieve requested meter settings based on telegram address.
+  *
+  * @param telegram
+  * @return configuration or false if meter is unknown.
+  */
+  getMeterData(telegram) {
+    let buffer = this.getAddressField(telegram);
+
+    if (!buffer)
+      return false;
+
+    let meterAddress = buffer.toString('hex');
+
+    return this._meterData.has(meterAddress) ?
+      this._meterData.get(meterAddress) : false;
   }
 
   /**
@@ -95,8 +125,8 @@ class WirelessMBusMeter extends Meter {
         length: 2
         },
       'BLOCK1_A': {
-        start: 4,
-        length: 6
+        start: 2,
+        length: 8
         },
       'BLOCK1_ID': {
         start: 4,

@@ -33,7 +33,7 @@ describe('Tests for WirelessMBusTelegram class', () => {
       if (telegram.getPacket() != packet)
         return done(new Error("Telegram didn't return expected packet"));
 
-      if (meter.getAddressField(telegram).toString('hex') != "001122334455")
+      if (meter.getAddressField(telegram).toString('hex') != "2d2c001122334455")
         return done(new Error("Invalid telegram address"));
 
       if (meter.getControlField(telegram).toString('hex') != "44")

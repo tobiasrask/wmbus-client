@@ -29,12 +29,9 @@ describe('Tests for KamstrupMultical21Meter', () => {
       let telegram = new WirelessMBusTelegram(packet);
 
       let meter = KamstrupMultical21Meter.getInstance();
-      
-      // Process telegram
-      let options = {
-        key: Buffer(input['key'], 'hex')
-      }
-      meter.processTelegramData(telegram, options);
+      meter.processTelegramData(telegram, {
+        aes: input['aes']
+      });
 
       if (telegram.getPacket() != packet)
         return done(new Error("Telegram didn't return expected packet"));
@@ -73,7 +70,6 @@ describe('Tests for KamstrupMultical21Meter', () => {
   describe('Test reading telegrams from log file' , () => {
     it('It should read an decrypt telegrams from log file', done => {
 
-      let meter = KamstrupMultical21Meter.getInstance();
 
       // This test requires external AES-key files. Keys are not included with
       //git repository, and will be skipped if following file doesn't exits.
@@ -83,6 +79,11 @@ describe('Tests for KamstrupMultical21Meter', () => {
       MeterImporter.loadMeterSettings(meterSettings, (err, meterData) => {
         // Skip test if keyfile is not included
         if (err) return done();
+
+        let meter = KamstrupMultical21Meter.getInstance();
+        meter.applySettings({
+          meterData: meterData
+        });
 
         // Load test data log file, which contains list of keyed values
         let logFile = path.join(__dirname, './test_data/log-reader-test-data.log');
@@ -107,21 +108,15 @@ describe('Tests for KamstrupMultical21Meter', () => {
           let lineCounter = 0;
 
           // TODO: Fetch key automatically
-          if (!meterData.has('63425184'))
-            return done(new Error("No telegram info found for test data"));
-
-          let meterInfo = meterData.get('63425184');
-
-          let telegramOptions = {
-            key: Buffer(meterInfo['aes'], 'hex')
-          }
-
+          //if (!meterData.has(Buffer("2d2c725142631b16", "hex")))
+          //  return done(new Error("No telegram info found for test data"));
+          // let meterInfo = meterData.get('2d2c845142631b06');
           do {
             let telegram = new WirelessMBusTelegram(dataPacket);
-            meter.processTelegramData(telegram, telegramOptions);
+            meter.processTelegramData(telegram);
 
-            //console.log("Meter value: " + meter.getMeterValue(telegram));
-            //console.log("Meter target value: " + meter.getMeterTargetValue(telegram));
+            // console.log("Meter value: " + meter.getMeterValue(telegram));
+            // console.log("Meter target value: " + meter.getMeterTargetValue(telegram));
 
             dataPacket = buffer.fetch();
             lineCounter++;

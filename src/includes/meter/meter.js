@@ -3,6 +3,39 @@
 */
 class Meter {
 
+  constructor() {
+    // Initialize values
+    this._disableMeterFilter = false;
+    this._meterData = new Map();
+  }
+
+  /**
+  * Apply meter configuration settings.
+  *
+  * @param options
+  *   disableMeterFilter - Boolean value to indicate if meter filter should
+  *     be disabled. Defaults to false. This means that only listed meters
+  *     will be passed further.
+  */
+  applySettings(options) {
+
+    if (options.hasOwnProperty('disableMeterFilter'))
+      this._disableMeterFilter = options.disableMeterFilter;
+
+    if (options.hasOwnProperty('meterData'))
+      this._meterData = options.meterData;
+  }
+
+  /**
+  * Retrieve requested meter settings based on telegram address.
+  *
+  * @param telegram
+  * @return meter data or false if meter is unknown.
+  */
+  getMeterData(telegram) {
+    return false;
+  }
+
   /**
   * Process telegram by fetching meter values from raw data packet.
   *
@@ -12,6 +45,16 @@ class Meter {
   */
   processTelegramData(telegram) {
     return false;
+  }
+
+  /**
+  * Method checks if telegram should be passed to future processing.
+  *
+  * @param telegram
+  * @return boolean 
+  */
+  passTelegram(telegram) {
+
   }
 
   /**
@@ -89,7 +132,7 @@ class Meter {
   * @param buffer
   * @return reverse buffer
   */
-  reverseBuffer(buffer) {
+  static reverseBuffer(buffer) {
     let t = new Buffer(buffer.length)
 
     for (let i = 0, j = buffer.length - 1; i <= j; ++i, --j) {
@@ -106,6 +149,31 @@ class Meter {
   */
   static getInstance() {
     return null;
+  }
+
+
+  /**
+  * Build manufacturer id.
+  *
+  * @param name
+  *   Manufacturer name with three letter, for example "KAM" for Kamstrup.
+  * @return id
+  *   Buffer for manufacturer id of false
+  */
+  static buildManufacturerId(name) {
+    if (name === undefined || name.length < 3 || name.length > 3)
+      return false;
+
+    // Make sure name is uppercase
+    name = name.toUpperCase();
+
+    // Build name
+    let label = (name.charCodeAt(0) - 64) * 32 * 32 +
+                (name.charCodeAt(1) - 64) * 32 +
+                (name.charCodeAt(2) - 64);
+
+    return (0x0421 <= label && label <= 0x6b5a) ?
+      new Buffer(label.toString(16), 'hex') : false;
   }
 }
 

@@ -4,7 +4,7 @@
       {
         "description": "AES encrypt test for Kamstrup Multical 21, read more: http://stackoverflow.com/questions/29392226/wm-bus-extended-layer-decoding",
         "telegram": "23442D2C454571631B168D206A31FB7C2039A379604B90BDFCBE8DD8CB18CE77DC41CE8C",
-        "key": "B97A6D4EC274A46D870E3127D9A0AF63",
+        "aes": "B97A6D4EC274A46D870E3127D9A0AF63",
         "iv": "2d2c454571631b162031fb7c20000000",
         "value": "25877968217e8e01000000000000000000bb49"
       }

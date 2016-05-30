@@ -17,17 +17,27 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   * @param telegram
   *   Telegram to be processed.
   * @param options
+  *   aes - AES key if needed
+  *
   * @return boolean succeed
   */
   processTelegramData(telegram, options = {}) {
 
-    if (!super.processTelegramData(telegram))
+    if (!super.processTelegramData(telegram, options))
       return false;
 
     telegram.setValue('BLOCKX_FN', Buffer('0000', "hex"));
     telegram.setValue('BLOCKX_BC', Buffer('00', "hex"));
 
-    if (options.hasOwnProperty('key')) {
+    // If AES key is not provided directly, try to load it from meter data
+    if (!options.hasOwnProperty('aes')) {
+      let meterData = this.getMeterData(telegram);
+      
+      if (meterData && meterData.hasOwnProperty('aes'))
+        options['aes'] = meterData['aes'];
+    }
+
+    if (options.hasOwnProperty('aes')) {
       telegram.setValue('BLOCK2_DECRYPTED_ELL_DATA',
         this.decryptTelegram(telegram, options));
 
@@ -177,7 +187,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     let buffers = [];
     let values = telegram.getValues();
     let blockMap = [
-      'BLOCK1_M',
       'BLOCK1_A',
       'BLOCK2_CC',
       'BLOCK2_SN',
@@ -196,14 +205,16 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   *   key - AES key for this telegram meter
   */
   decryptTelegram(telegram, options = {}) {
-    let key = options.hasOwnProperty('key') ? options.key : false;
+    if (!options.hasOwnProperty('aes'))
+      return false;
 
-    // TODO: Fetch keys from local store
+    let AESKey = Buffer(options['aes'], 'hex');
+
     let encryptedData = this.getEncryptedELLData(telegram)
       .get('BLOCK2_ENCRYPTED_ELL_DATA');
 
-    let iv = this.getIV(telegram);
-    return this.decryptBuffer(encryptedData, key, iv);    
+    let initializationVector = this.getIV(telegram);
+    return this.decryptBuffer(encryptedData, AESKey, initializationVector);    
   }
 
   /**
@@ -295,7 +306,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     if (!values.has('BLOCK3_VALUE'))
       return null;
 
-    let reverseBuffer = this.reverseBuffer(values.get('BLOCK3_VALUE'));
+    let reverseBuffer = WirelessMBusMeter.reverseBuffer(values.get('BLOCK3_VALUE'));
     return reverseBuffer.readUIntBE(0, 4);
   }
 
@@ -310,7 +321,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     if (!values.has('BLOCK3_TARGET_VALUE'))
       return null;
 
-    let reverseBuffer = this.reverseBuffer(values.get('BLOCK3_TARGET_VALUE'));
+    let reverseBuffer = WirelessMBusMeter.reverseBuffer(values.get('BLOCK3_TARGET_VALUE'));
     return reverseBuffer.readUIntBE(0, 4);
   }
 
