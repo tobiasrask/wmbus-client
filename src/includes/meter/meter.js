@@ -6,6 +6,7 @@ class Meter {
   constructor() {
     // Initialize values
     this._disableMeterFilter = false;
+    this._filter = [];
     this._meterData = new Map();
   }
 
@@ -19,11 +20,15 @@ class Meter {
   */
   applySettings(options) {
 
-    if (options.hasOwnProperty('disableMeterFilter'))
-      this._disableMeterFilter = options.disableMeterFilter;
+    if (options.hasOwnProperty('disableMeterDataCheck'))
+      this._disableMeterDataCheck = options.disableMeterDataCheck;
 
     if (options.hasOwnProperty('meterData'))
       this._meterData = options.meterData;
+
+    if (options.hasOwnProperty('filter'))
+      this._filter = options.filter;
+
   }
 
   /**
@@ -44,17 +49,30 @@ class Meter {
   * @return boolean succeed
   */
   processTelegramData(telegram) {
-    return false;
+    if (!telegram)
+      return false;
+
+    return true;
   }
 
   /**
   * Method checks if telegram should be passed to future processing.
   *
   * @param telegram
-  * @return boolean 
+  * @return boolean pass
   */
   passTelegram(telegram) {
-
+    // Check if we have definition for this meter...
+    if (!this._disableMeterDataCheck && !this.getMeterData(telegram))
+      return false;
+    
+    // Check if we have meter filter
+    if (this._filter && this._filter.length > 0) {
+      let meterAddress = this.getAddressField(telegram).toString('hex'); 
+      if (this._filter.indexOf(meterAddress) < 0)
+        return false;
+    }
+    return true;
   }
 
   /**
@@ -134,7 +152,6 @@ class Meter {
   */
   static reverseBuffer(buffer) {
     let t = new Buffer(buffer.length)
-
     for (let i = 0, j = buffer.length - 1; i <= j; ++i, --j) {
       t[i] = buffer[j];
       t[j] = buffer[i];

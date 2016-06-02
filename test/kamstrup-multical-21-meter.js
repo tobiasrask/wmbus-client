@@ -29,9 +29,16 @@ describe('Tests for KamstrupMultical21Meter', () => {
       let telegram = new WirelessMBusTelegram(packet);
 
       let meter = KamstrupMultical21Meter.getInstance();
-      meter.processTelegramData(telegram, {
-        aes: input['aes']
+
+      meter.applySettings({
+        disableMeterDataCheck: true
       });
+
+      if (!meter.processTelegramData(telegram, {
+          aes: input['aes']
+        }))
+        return done(new Error("Meter telegram was filtered out"));
+
 
       if (telegram.getPacket() != packet)
         return done(new Error("Telegram didn't return expected packet"));
@@ -75,14 +82,24 @@ describe('Tests for KamstrupMultical21Meter', () => {
       //git repository, and will be skipped if following file doesn't exits.
       let meterSettings = path.join(__dirname, './../../data/meters.json');
 
+
+      //let testBuffer = Buffer("03131531", "hex")
+      //console.log("Test buffer...");
+      //console.log(testBuffer.readUInt32LE());
+      //console.log(testBuffer.readUIntLE(0, 4));
+      //done();
+      //return;
+   
       // TODO: Make this promise based implementation...
       MeterImporter.loadMeterSettings(meterSettings, (err, meterData) => {
         // Skip test if keyfile is not included
         if (err) return done();
 
         let meter = KamstrupMultical21Meter.getInstance();
+
         meter.applySettings({
-          meterData: meterData
+          meterData: meterData,
+          //filter: ['63425184']
         });
 
         // Load test data log file, which contains list of keyed values
@@ -115,14 +132,16 @@ describe('Tests for KamstrupMultical21Meter', () => {
             let telegram = new WirelessMBusTelegram(dataPacket);
             meter.processTelegramData(telegram);
 
-            // console.log("Meter value: " + meter.getMeterValue(telegram));
-            // console.log("Meter target value: " + meter.getMeterTargetValue(telegram));
+            let value = meter.getMeterValue(telegram);
+            console.log("Meter value: " + value);
 
+            let targetValue = meter.getMeterTargetValue(telegram);
+            console.log("Meter target value: " + targetValue);
             dataPacket = buffer.fetch();
             lineCounter++;
           } while (dataPacket != null);
 
-          if (lineCounter != 30)
+          if (lineCounter != 47)
             return done(new Error("LogReader didn't provide all telegrams"));
 
           if (errors)

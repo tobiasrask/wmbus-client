@@ -36,19 +36,21 @@ describe('Log reader', () => {
 
         let dataPacket = buffer.fetch();
         let lineCounter = 0;
-        let testBufferProbe = Buffer("2d2c845142631b", "hex");
+        let testBufferProbe1 = Buffer("2d2c845142631b", "hex");
+        let testBufferProbe2 = Buffer("2d2c745142631b", "hex");
 
         do {
           if (!dataPacket ||
-              dataPacket.getTimestamp() != lineCounter ||
-              dataPacket.getBuffer().indexOf(testBufferProbe) < 0) {
+              dataPacket.getTimestamp() != lineCounter || (
+              dataPacket.getBuffer().indexOf(testBufferProbe1) < 0 &&
+              dataPacket.getBuffer().indexOf(testBufferProbe2) < 0)) {
             errors = true;            
           }
           dataPacket = buffer.fetch();
           lineCounter++;
         } while (dataPacket != null);
 
-        if (lineCounter != 30)
+        if (lineCounter != 47)
           return done(new Error("LogReader didn't provide all telegrams"));
 
         if (errors)

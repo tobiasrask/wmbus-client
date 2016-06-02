@@ -6,6 +6,15 @@ var instance = null;
 
 /**
 * Wireless M-Bus meter.
+*
+* Data Record Header DRH
+* Data Information Block DIB
+* Value Information Block VIB
+* DIF
+* DIFE
+* VIF
+* VIFE
+* Data
 */
 class WirelessMBusMeter extends Meter {
 
@@ -29,7 +38,8 @@ class WirelessMBusMeter extends Meter {
   * @return boolean succeed
   */
   processTelegramData(telegram, options = {}) {
-    if (!telegram)
+
+    if (!super.processTelegramData(telegram, options))
       return false;
 
     // Get existing values and apply data
@@ -40,12 +50,11 @@ class WirelessMBusMeter extends Meter {
 
     // If filter is enabled, we make sure that meter is 'whitelisted' and
     // that we have predefined settings for it.
-    if (options.disableMeterFilter && !this.getMeterData(telegram))
+    if (!this.passTelegram(telegram))
       return false;
 
     // Process ELL    
     telegram.setValues(this.fetchData(packet, this.getELLMap()));
-
     return true;
   }
 
@@ -57,12 +66,10 @@ class WirelessMBusMeter extends Meter {
   */
   getMeterData(telegram) {
     let buffer = this.getAddressField(telegram);
-
     if (!buffer)
       return false;
 
     let meterAddress = buffer.toString('hex');
-
     return this._meterData.has(meterAddress) ?
       this._meterData.get(meterAddress) : false;
   }

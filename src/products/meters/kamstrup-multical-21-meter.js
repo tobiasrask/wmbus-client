@@ -7,6 +7,15 @@ var instance = null;
 /**
 * Kamstrup Multical 21 wireless M-Bus meter.
 *
+* Notes:
+* Multical 21 uses wireless M-Bus, 868 MHz, Mode C1. Data packets are sent every
+* 16 seconds, and every eight packet is "full" string. Other packets are
+* "compact" strings.
+*
+* Data packets are sent at intervals of approx. 16 seconds. Every eights packet is a ”full string”, whereas the 7 intervening packets are ”compact strings”.
+*
+* All data packets are encrypted with 128 bit AES counter mode encryption
+*
 * This implementation is used with C1 mode meters with encrypted ELL.
 */
 class KamstrupMultical21Meter extends WirelessMBusMeter {
@@ -23,8 +32,9 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   processTelegramData(telegram, options = {}) {
 
-    if (!super.processTelegramData(telegram, options))
+    if (!super.processTelegramData(telegram, options)) {
       return false;
+    }
 
     telegram.setValue('BLOCKX_FN', Buffer('0000', "hex"));
     telegram.setValue('BLOCKX_BC', Buffer('00', "hex"));
@@ -43,8 +53,11 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
 
       // Fetch meter information
       telegram.setValues(this.processTelegramValues(telegram, options));
+      //console.log('---');
+      //console.log(telegram.getPacket().getBuffer().toString('hex'));
+      //console.log(this.getDecryptedELLData(telegram).toString('hex'));
+      //console.log('-**-');
     }
-
     return true;
   }
 
@@ -55,8 +68,10 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   * CI (1 byte) CC(1 byte)   ACC(1 byte)  SN(4 bytes)  CRC(2  bytes)
   *
   * CI-FIELD (1 byte)
-  *   Application header, indicates application data type.
+  *   Application header, indicates application data payload type.
   *
+  * DATA-field
+  *   
   * CC-FIELD (1 byte)
   *   ???
   *
@@ -105,7 +120,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getCIField(telegram) {
     let values = telegram.getValues();
-
     return values.has('BLOCK2_CI') ?
       values.get('BLOCK2_CI') : null;
   }
@@ -118,7 +132,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getCCField(telegram) {
     let values = telegram.getValues();
-
     return values.has('BLOCK2_CC') ?
       values.get('BLOCK2_CC') : null;
   }
@@ -131,7 +144,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getACCField(telegram) {
     let values = telegram.getValues();
-
     return values.has('BLOCK2_ACC') ?
       values.get('BLOCK2_ACC') : null;
   }
@@ -144,7 +156,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getSNField(telegram) {
     let values = telegram.getValues();
-
     return values.has('BLOCK2_SN') ?
       values.get('BLOCK2_SN') : null;
   }
@@ -157,7 +168,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getELLCRC(telegram) {
     let values = telegram.getValues();
-
     return values.has('BLOCK2_CRC') ?
       values.get('BLOCK2_CRC') : null;
   }
@@ -170,7 +180,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getDecryptedELLData(telegram) {
     let values = telegram.getValues();
-
     return values.has('BLOCK2_DECRYPTED_ELL_DATA') ?
       values.get('BLOCK2_DECRYPTED_ELL_DATA') : null;
   }
@@ -263,34 +272,109 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     // Retrieve if this is short frame or long frame
     let data = this.getDecryptedELLData(telegram);
 
-    let shortFrameMap = {
-      'BLOCK3_PLCRC': {
-        start: 0,
-        length: 2
-        },
+    // Get frame type
+    let fV = this.fetchData(data, {
       'BLOCK3_FRAME_TYPE': {
         start: 2,
         length: 1
-        },
-      'BLOCK3_EXTRA_CRC': {
-        start: 3,
-        length: 4
-        },
-      'BLOCK3_INFO_CODES': {
-        start: 7,
-        length: 2
-        },
-      'BLOCK3_VALUE': {
-        start: 9,
-        length: 4
-        },
-      'BLOCK3_TARGET_VALUE': {
-        start: 13,
-        length: 4
-        }
-      };
+        }      
+    });
 
-    return this.fetchData(data, shortFrameMap);
+    let frameTypeCode = fV.get('BLOCK3_FRAME_TYPE').toString('hex');
+    /*
+    console.log('---');
+    console.log(frameTypeCode);
+    console.log(telegram.getPacket().getBuffer().toString('hex'));
+    console.log(this.getDecryptedELLData(telegram).toString('hex'));
+    console.log('-**-');
+    */
+    switch (frameTypeCode) {
+      case '79':
+        // This telegram is short frame
+        return this.fetchData(data, {
+          'BLOCK3_PLCRC': {
+            start: 0,
+            length: 2
+            },
+          'BLOCK3_FRAME_TYPE': {
+            start: 2,
+            length: 1
+            },      
+          'BLOCK3_EXTRA_CRC': {
+            start: 3,
+            length: 4
+            },
+          'DATA_RECORD_1_VALUE': {
+            start: 7,
+            length: 2
+            },
+          'DATA_RECORD_2_VALUE': {
+            start: 9,
+            length: 4
+            },
+          'DATA_RECORD_3_VALUE': {
+            start: 13,
+            length: 4
+            }
+          });
+        break;
+
+      case '78':
+        // TODO: Add symbol table to support short frames...
+
+        // This telegram is full frame
+        return this.fetchData(data, {
+          'BLOCK3_PLCRC': {
+            start: 0,
+            length: 2
+            },
+          'BLOCK3_FRAME_TYPE': {
+            start: 2,
+            length: 1
+            },      
+          'DATA_RECORD_1_DIF': {
+            start: 3,
+            length: 1
+            },
+          'DATA_RECORD_1_VIF': {
+            start: 4,
+            length: 1
+            },
+          'DATA_RECORD_1_VIFE': {
+            start: 5,
+            length: 1
+            },
+          'DATA_RECORD_1_VALUE': {
+            start: 6,
+            length: 2
+            },
+          'DATA_RECORD_2_DIF': {
+            start: 8,
+            length: 1
+            },
+          'DATA_RECORD_2_VIF': {
+            start: 9,
+            length: 1
+            },
+          'DATA_RECORD_2_VALUE': {
+            start: 10,
+            length: 4
+            },
+          'DATA_RECORD_3_DIF': {
+            start: 14,
+            length: 1
+            },
+          'DATA_RECORD_3_VIF': {
+            start: 15,
+            length: 1
+            },
+          'DATA_RECORD_3_VALUE': {
+            start: 16,
+            length: 4
+            },
+          });
+        break;        
+    }
   }
 
   /**
@@ -302,12 +386,8 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getMeterValue(telegram) {
     let values = telegram.getValues();
-
-    if (!values.has('BLOCK3_VALUE'))
-      return null;
-
-    let reverseBuffer = WirelessMBusMeter.reverseBuffer(values.get('BLOCK3_VALUE'));
-    return reverseBuffer.readUIntBE(0, 4);
+    return values.has('DATA_RECORD_2_VALUE') ?
+      values.get('DATA_RECORD_2_VALUE').readUInt32LE() : null;
   }
 
   /**
@@ -317,12 +397,8 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getMeterTargetValue(telegram) {
     let values = telegram.getValues();
-
-    if (!values.has('BLOCK3_TARGET_VALUE'))
-      return null;
-
-    let reverseBuffer = WirelessMBusMeter.reverseBuffer(values.get('BLOCK3_TARGET_VALUE'));
-    return reverseBuffer.readUIntBE(0, 4);
+    return values.has('DATA_RECORD_3_VALUE') ?
+      values.get('DATA_RECORD_3_VALUE').readUInt32LE() : null;
   }
 
   /**
