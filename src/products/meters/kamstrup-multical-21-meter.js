@@ -62,6 +62,22 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   }
 
   /**
+  * Method returns meter information.
+  *
+  * @param telegram
+  * @return meter information
+  */
+  describeMeter(telegram) {
+    let meterData = this.getMeterData(telegram);
+    let types = {
+      '06': 'VolumeHeat',
+      '16': 'VolumeCold'
+    }
+    return meterData ?
+      meterData['label'] + " (" + types[meterData['deviceType']] +")" : 'unknown meter';
+  }
+
+  /**
   * Returns extended data link layer map.
   *
   * Block 2 (Extended Data Link Layer)

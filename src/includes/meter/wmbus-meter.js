@@ -70,6 +70,7 @@ class WirelessMBusMeter extends Meter {
       return false;
 
     let meterAddress = buffer.toString('hex');
+    
     return this._meterData.has(meterAddress) ?
       this._meterData.get(meterAddress) : false;
   }

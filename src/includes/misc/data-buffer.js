@@ -23,7 +23,6 @@ class DataBuffer {
   */
   push(packet) {
     // console.log("Pushing packet:", packet);
-
     let bufferItem = new BufferItem(packet);
     
     if (this._firstBufferItem == null)
@@ -55,6 +54,15 @@ class DataBuffer {
       this._firstBufferItem = this._lastBufferItem = null;
 
     return packet;
+  }
+
+  /**
+  * Method to check if buffer has data available.
+  *
+  * @return boolean hasData
+  */
+  hasData() {
+    return this._firstBufferItem == null ? false : true;
   }
 }
 
