@@ -11,6 +11,16 @@ class Meter {
   }
 
   /**
+  * Describe meter.
+  *
+  * @param telegram
+  * @return information
+  */
+  describeMeter(telegram) {
+    return 'Base Meter';
+  }
+
+  /**
   * Apply meter configuration settings.
   *
   * @param options
@@ -28,7 +38,6 @@ class Meter {
 
     if (options.hasOwnProperty('filter'))
       this._filter = options.filter;
-
   }
 
   /**

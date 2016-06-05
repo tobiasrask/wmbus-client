@@ -114,22 +114,14 @@ class TelegramStrem extends Transform {
     let data = this._bufferedChunk ?
       Buffer.concat([this._bufferedChunk, chunk]) : chunk;
 
-    // if (data.length > 400)
-      //console.log("Large telegram buffer size: " + data.length);
-
-    //console.log("Framelength: ", this._frameLength, data);
-
     while (proceed) {
-
-      // Find telegram start
-      if (this._frameLength < 0) {
-        
+      // Find telegram start by comparing start hex code xFF.
+      if (this._frameLength < 0) {        
         for (var i = 0; i < (data.length - 2); i++) {
           if (data[i] == self._startByte[0]) {
             // Remove leading bytes, since they are not part of this telegram
             if (i > 0)
               data = data.slice(i);
-
             // Get telegram length, and apply CRCS
             this._frameLength = (data[2] + 4);
             break;

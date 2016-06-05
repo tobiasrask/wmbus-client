@@ -60,9 +60,8 @@ class LogReader extends DataSource {
   */
   loadFile(filename) {
     let self = this;
-    // console.log(`Loading data from file: ${filename}`);
+    // console.log(`Loading data from file: ${filename}`);    
     fs.readFile(filename, function(err, data) {
-      // TODO: Signal error
       if (err)
         return;
 
@@ -79,7 +78,6 @@ class LogReader extends DataSource {
   */
   processLog(data) {
     let self = this;
-
     if (!this._buffer)
       return;
 
