@@ -1,6 +1,6 @@
 import WMBusReader from "./../../includes/reader/wmbus-reader"
 import DataSource from "./../../includes/reader/data-source"
-import DataPacket from "./../../includes/misc/data-packet"
+import DataPacket from "./../../includes/buffer/data-packet"
 import stream from 'stream'
 import xor  from 'bitwise-xor'
 

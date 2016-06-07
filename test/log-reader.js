@@ -1,7 +1,7 @@
 import assert from "assert"
 import path from "path"
 import LogReader from "./../src/includes/reader/log-reader"
-import DataBuffer from "./../src/includes/misc/data-buffer"
+import DataBuffer from "./../src/includes/buffer/data-buffer"
 
 
 describe('Log reader', () => {

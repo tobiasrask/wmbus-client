@@ -1,6 +1,6 @@
 import fs from "fs"
 import DataSource from "./data-source"
-import DataPacket from "./../misc/data-packet"
+import DataPacket from "./../buffer/data-packet"
 
 /**
 * Data log reader. Provides data source 

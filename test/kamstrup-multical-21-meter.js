@@ -1,9 +1,9 @@
 import WirelessMBusTelegram from "./../src/includes/telegram/wmbus-telegram"
 import KamstrupMultical21Meter from "./../src/products/meters/kamstrup-multical-21-meter"
-import DataPacket from "./../src/includes/misc/data-packet"
+import DataPacket from "./../src/includes/buffer/data-packet"
 import MeterImporter from "./../src/includes/meter/meter-importer"
 import LogReader from "./../src/includes/reader/log-reader"
-import DataBuffer from "./../src/includes/misc/data-buffer"
+import DataBuffer from "./../src/includes/buffer/data-buffer"
 
 import path from "path"
 import assert from "assert"

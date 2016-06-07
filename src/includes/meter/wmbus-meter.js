@@ -59,6 +59,16 @@ class WirelessMBusMeter extends Meter {
   }
 
   /**
+  * Returns telegram data buffer timestamp.
+  *
+  * @param telegram
+  * @return timestam
+  */
+  getTelegramTimestamp(telegram) {
+    return telegram ? telegram.getPacket().getTimestamp() : false;
+  }
+
+  /**
   * Retrieve requested meter settings based on telegram address.
   *
   * @param telegram

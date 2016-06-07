@@ -3,11 +3,12 @@
 */
 import WirelessMBusTelegram from "./../src/includes/telegram/wmbus-telegram"
 import KamstrupMultical21Meter from "./../src/products/meters/kamstrup-multical-21-meter"
-import DataPacket from "./../src/includes/misc/data-packet"
+import DataPacket from "./../src/includes/buffer/data-packet"
 import AmberWirelessReader from "./../src/products/reader/amber-wireless"
 import MeterImporter from "./../src/includes/meter/meter-importer"
-import DataBuffer from "./../src/includes/misc/data-buffer"
+import DataBuffer from "./../src/includes/buffer/data-buffer"
 import LogWriter from "./../src/includes/logger/log-writer"
+import Statistics from "./../src/includes/misc/statistics"
 import path from "path"
 
 class Example {
@@ -39,6 +40,8 @@ class Example {
   *   Meter configuration data
   */
   prepareMeter(options, meterData) {
+
+    let statistics = Statistics.getInstance();
 
     // First we create meter for Kamstup Multical 21 with meter configuration
     // settings.
@@ -82,7 +85,9 @@ class Example {
       meter.processTelegramData(telegram);
 
       // Just write data to console
-      console.log(`Meter: ${meter.describeMeter(telegram)}    Target value: ${meter.getMeterTargetValue(telegram)}    Value: ${meter.getMeterValue(telegram)}   (${meter.getAddressField(telegram).toString('hex')})`);
+      let stats = statistics.getMeterStats(meter, telegram);
+      console.log(`Meter: ${stats.description} Value: ${stats.currentValue}  Delta value: ${stats.deltaValue}`);
+
     }, options.bufferInterval);
   }
 
@@ -93,9 +98,9 @@ let example = new Example().run({
   // Meter configuration path
   configurationPath: './../../data/meters.json',
 
-  // Log writer path
-  logWriterPath: './../../data/consumption-export.log',
-
+  // Log writer path. The extension will be .log and there will be date based
+  // suffix.
+  logWriterPath: './../../data/consumption-export',
 
   // Serial port path
   serialPortPath: '/dev/cu.usbserial-2701A795',

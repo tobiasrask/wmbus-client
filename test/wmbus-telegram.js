@@ -1,5 +1,5 @@
 
-import DataPacket from "./../src/includes/misc/data-packet"
+import DataPacket from "./../src/includes/buffer/data-packet"
 import WirelessMBusTelegram from "./../src/includes/telegram/wmbus-telegram"
 import WirelessMBusMeter from "./../src/includes/meter/wmbus-meter"
 

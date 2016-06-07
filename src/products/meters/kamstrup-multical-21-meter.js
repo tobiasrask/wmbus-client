@@ -402,8 +402,9 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getMeterValue(telegram) {
     let values = telegram.getValues();
+  
     return values.has('DATA_RECORD_2_VALUE') ?
-      values.get('DATA_RECORD_2_VALUE').readUInt32LE() : null;
+      this.parseMeterValue(values.get('DATA_RECORD_2_VALUE').readUInt32LE()) : null;
   }
 
   /**
@@ -413,8 +414,19 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getMeterTargetValue(telegram) {
     let values = telegram.getValues();
+
     return values.has('DATA_RECORD_3_VALUE') ?
-      values.get('DATA_RECORD_3_VALUE').readUInt32LE() : null;
+      this.parseMeterValue(values.get('DATA_RECORD_3_VALUE').readUInt32LE()) : null;
+  }
+
+  /**
+  * Parse float value.
+  *
+  * @param value
+  * @return value
+  */
+  parseMeterValue(value) {
+    return parseFloat(value) / 1000;
   }
 
   /**

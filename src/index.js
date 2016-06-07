@@ -25,8 +25,8 @@ export { _WirelessMBUSReader as WirelessMBUSReader };
 /**
 * Misc.
 */
-import _Telegram from './includes/misc/telegram';
+import _Telegram from './includes/telegram/telegram';
 export { _Telegram as Telegram };
 
-import _DataBuffer from './includes/misc/data-buffer';
+import _DataBuffer from './includes/buffer/data-buffer';
 export { _DataBuffer as DataBuffer };

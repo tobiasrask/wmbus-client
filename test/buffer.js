@@ -1,4 +1,4 @@
-import DataBuffer from "./../src/includes/misc/data-buffer"
+import DataBuffer from "./../src/includes/buffer/data-buffer"
 import assert from "assert"
 
 describe('Data buffer', () => {

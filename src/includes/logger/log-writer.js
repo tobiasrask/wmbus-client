@@ -16,8 +16,17 @@ class LogWriter extends Logger {
   */
   constructor(options = {}) {
     super();
-    this._logFile = options.hasOwnProperty('logFile') ? options.logFile : false;
+    
+    if (!options.hasOwnProperty('logFile'))
+      throw new Error("Log file was not provided for writer")
+
+    if (!options.hasOwnProperty('logFileSuffix'))
+      options.logFileSuffix = new Date()
+        .toISOString().slice(0,10).replace(/-/g,"");
+
+    this._logFile = `${options.logFile}--${options.logFileSuffix}.log`;
     console.log(`Log file: ${this._logFile}`);
+    // No more!
   }
 
   /**
