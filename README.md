@@ -7,7 +7,7 @@ Collected data can be distributed to external services over internet, making you
 environment to be part of Internet of Things.
 
 ### Supported meters and readers
-At the moment it supports Kamstrup Multical 21 water meters and AMBER wM-Bus Modules (AMB8426-M AMB8626-M AMB3626-M AMB3636-M).
+At the moment it supports Kamstrup Multical 21 water meters and AMBER wM-Bus Modules (AMB8426-M, AMB8626-M, AMB3626-M and AMB3636-M).
 Please contribute to get more readers and meters.
 
 ### How to get started with Wireless M-Bus
