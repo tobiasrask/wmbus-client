@@ -23,7 +23,10 @@ class Telegram {
   * @param values
   *   Map of values
   */
-  setValues(values) {
+  setValues(values = false) {
+    if (!values)
+      return;
+    
     values.forEach((value, key) => {
       this._values.set(key, value);
     }, this);

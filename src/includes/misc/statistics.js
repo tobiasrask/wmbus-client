@@ -7,11 +7,25 @@ class Statistics {
 
   /**
   * Constructor.
+  *
+  * @param options
   */
-  constructor() {
+  constructor(options = {}) {
     this._stasts = {};
+    if (options.hasOwnProperty('meterData'))
+      this.prepareStats(options.meterData);
   }
 
+  /**
+  * Prepare meter data.
+  *
+  * @param meterData
+  */
+  prepareStats(meterData = {}) {
+    meterData.forEach((item, key) => {
+      this._stasts[key] = false;
+    });
+  }
 
   /**
   * Returns meter stats.
@@ -27,8 +41,8 @@ class Statistics {
     let currentValue = meter.getMeterValue(telegram);
     let currentTargetValue = meter.getMeterTargetValue(telegram);
 
-
-    if (!this._stasts.hasOwnProperty(address)) {
+    if (!this._stasts.hasOwnProperty(address) ||
+        !this._stasts[address]) {
 
       this._stasts[address] = {
         // Meter address
@@ -54,9 +68,13 @@ class Statistics {
         // Delta since first measurement
         deltaValue: false,
         // Delta since first measurement
-        deltaTargetValue: false
+        deltaTargetValue: false,
+        // Counter
+        counter: 0
       };
     }
+
+    this._stasts[address]['counter']++;
 
     this._stasts[address]['lastMeasure'] = meter.getTelegramTimestamp(telegram);
     this._stasts[address]['currentValue'] = currentValue;
@@ -71,6 +89,15 @@ class Statistics {
         this._stasts[address]['initTargetValue'];
 
     return this._stasts[address];
+  }
+
+  /**
+  * Get statistics.
+  *
+  * @return statistics
+  */
+  getStats() {
+    return this._stasts;
   }
 
   /**

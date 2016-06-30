@@ -68,13 +68,22 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   * @return meter information
   */
   describeMeter(telegram) {
-    let meterData = this.getMeterData(telegram);
-    let types = {
+    return this.describeMeterData(this.getMeterData(telegram));
+  }
+
+  /**
+  * Metod returns label for meter data
+  *
+  * @param meterData
+  * @return label
+  */
+  describeMeterData(meterData = false) {
+    const types = {
       '06': 'VolumeHeat',
       '16': 'VolumeCold'
     }
     return meterData ?
-      meterData['label'] + " (" + types[meterData['deviceType']] +")" : 'unknown meter';
+      meterData['label'] + " (" + types[meterData['deviceType']] +")" : 'unknown meter';    
   }
 
   /**

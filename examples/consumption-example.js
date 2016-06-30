@@ -8,6 +8,7 @@ import AmberWirelessReader from "./../src/products/reader/amber-wireless"
 import MeterImporter from "./../src/includes/meter/meter-importer"
 import DataBuffer from "./../src/includes/buffer/data-buffer"
 import LogWriter from "./../src/includes/logger/log-writer"
+import LogReader from "./../src/includes/reader/log-reader"
 import Statistics from "./../src/includes/misc/statistics"
 import path from "path"
 
@@ -41,8 +42,6 @@ class Example {
   */
   prepareMeter(options, meterData) {
 
-    let statistics = Statistics.getInstance();
-
     // First we create meter for Kamstup Multical 21 with meter configuration
     // settings.
     let meter = KamstrupMultical21Meter.getInstance();
@@ -50,33 +49,45 @@ class Example {
       meterData: meterData,
     });
 
+    let statistics = Statistics.getInstance();
+    statistics.prepareStats(meterData);
+
     // Create data buffer. All raw data will be buffered before processing
     let buffer = new DataBuffer();
+    let reader = false;
 
-    // Register log writer as listener. This allows us to write all
-    // raw data to log file to be used later if needed.
-    let filepath = path.join(__dirname, options.logWriterPath);    
-    let logWriter = new LogWriter({ logFile: filepath});
+    if (options.readerType == 'log') {
 
-    buffer.registerListener('logWriter', {
-      onPush: (arg) => { logWriter.writeRawTelegram(arg) }
-    });
+      // Load test data log file, which contains list of keyed values
+      reader = new LogReader({ source: options.logReaderSource, buffer: buffer });
 
-    console.log("Start Wireless M-Bus reader...");
+    } else {
 
-    let reader = new AmberWirelessReader({
-      buffer: buffer,
-      serialPortPath: options.serialPortPath
-    });
+      // Register log writer as listener. This allows us to write all
+      // raw data to log file to be used later if needed.
+      let filepath = path.join(__dirname, options.logWriterPath);    
+      let logWriter = new LogWriter({ logFile: filepath});
 
+      buffer.registerListener('logWriter', {
+        onPush: (arg) => { logWriter.writeRawTelegram(arg) }
+      });
+
+      console.log("Start Wireless M-Bus reader...");
+
+      reader = new AmberWirelessReader({
+        buffer: buffer,
+        serialPortPath: options.serialPortPath
+      });
+    }
+    
     // Enabled data source, now all data will be sent to out data buffer.
     reader.enableSource();
 
     // Process buffer data.
     let interval = setInterval(() => {
 
-      if (reader.isReady())
-        return clearInterval(interval);
+      // if (reader.isReady())
+      //  return clearInterval(interval);
 
       if (!buffer.hasData())
         return;
@@ -86,15 +97,28 @@ class Example {
 
       // Just write data to console
       let stats = statistics.getMeterStats(meter, telegram);
+
       console.log(`Meter: ${stats.description} Value: ${stats.currentValue}  Delta value: ${stats.deltaValue}`);
 
     }, options.bufferInterval);
+
+
+    let previewInterval = setInterval(() => {
+      // Show statistics
+      let stats = statistics.getStats()
+
+      Object.keys(stats).forEach(key => {
+        if (stats[key])
+          console.log(`Meter: ${stats[key].description} Count telegrams: ${stats[key].counter}`);
+        else
+          console.log(`No meter data for: ${meter.describeMeterData(meterData.get(key))}`);
+      });
+    }, options.previewInterval);
   }
 
 }
 
 let example = new Example().run({
-
   // Meter configuration path
   configurationPath: './../../data/meters.json',
 
@@ -106,5 +130,18 @@ let example = new Example().run({
   serialPortPath: '/dev/cu.usbserial-2701A795',
 
   // Interval to check buffer status
-  bufferInterval: 1000,
-});
+  bufferInterval: 20,
+
+  // Preview interval
+  previewInterval: 6000,
+
+  // Log reader path
+  logReaderSource: [
+    './../../data/consumption-export--20160617.log',
+    './../../data/consumption-export--20160618.log'
+    ],
+ 
+  // Reader type: 'collect' or 'log'
+  readerType: 'collect'
+  }
+ );

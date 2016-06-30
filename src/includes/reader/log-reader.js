@@ -18,18 +18,23 @@ class LogReader extends DataSource {
   constructor(options = {}) {
     super(options);
     this._buffer = options.hasOwnProperty('buffer') ? options.buffer : false;
-    this._source = options.hasOwnProperty('source') ? options.source : false;
-    this._done = false;
-    this._processing = false;
+
+    if (options.hasOwnProperty('source'))
+      this.setSourceFile(options.source);
   }
 
   /**
   * Set source file.
   *
   * @param source
+  *   Source file or array of source files, that will be processed.
   */
   setSourceFile(source) {
-    this._source = source;
+    // Support single files
+    if (!Array.isArray(source))
+      source = [source];
+
+    this._sources = source;
     this._done = false;
     this._processing = false;
   }
@@ -38,10 +43,20 @@ class LogReader extends DataSource {
   * Implementation of enableSource().
   */
   enableSource() {
-    if (this._source && !this._processing) {
-      this._processing = true;
-      this.loadFile(this._source);
-    }
+    let self = this;
+
+    // Check if we are processing already
+    if (!this._sources || this._processing)
+      return;
+
+    this._sources.reduce((sequence, filePath) => {
+      return sequence.then(() => {
+        return self.loadFile(filePath);
+      });
+    }, Promise.resolve()).then(() => {
+      self._done = true;
+      self._processing = false;      
+    });
   }
 
   /**
@@ -56,18 +71,24 @@ class LogReader extends DataSource {
   /**
   * Load source file and build satellite data file.
   *
-  * @param filename
+  * @param filePath
+  *   File path ro file
+  * @return promise
   */
-  loadFile(filename) {
+  loadFile(filePath) {
     let self = this;
-    // console.log(`Loading data from file: ${filename}`);    
-    fs.readFile(filename, function(err, data) {
-      if (err)
-        return;
+    
+    return new Promise((resolve, reject) => {
+      console.log(`Loading data from file: ${filePath}`);
 
-      self._done = true;
-      self._processing = false;
-      self.processLog(data);
+      fs.readFile(filePath, (err, data) => {
+        if (err)
+          return reject(err);
+        
+        self.processLog(data);
+
+        resolve();
+      });   
     });
   }
 
