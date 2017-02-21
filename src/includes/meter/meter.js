@@ -74,10 +74,10 @@ class Meter {
     // Check if we have definition for this meter...
     if (!this._disableMeterDataCheck && !this.getMeterData(telegram))
       return false;
-    
+
     // Check if we have meter filter
     if (this._filter && this._filter.length > 0) {
-      let meterAddress = this.getAddressField(telegram).toString('hex'); 
+      let meterAddress = this.getAddressField(telegram).toString('hex');
       if (this._filter.indexOf(meterAddress) < 0)
         return false;
     }
@@ -124,7 +124,7 @@ class Meter {
 
   /**
   * Returns instructions how to map telegram data packet to meter information.
-  * 
+  *
   * @return mapping
   *   Object with mapping details
   */
@@ -135,7 +135,7 @@ class Meter {
   /**
   * Returns instructions how to map telegram data packet to extended data link
   * layer.
-  * 
+  *
   * @return mapping
   *   Object with mapping details
   */
@@ -165,7 +165,7 @@ class Meter {
       t[i] = buffer[j];
       t[j] = buffer[i];
     }
-    return t;    
+    return t;
   }
 
   /**

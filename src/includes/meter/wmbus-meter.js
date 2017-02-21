@@ -34,7 +34,7 @@ class WirelessMBusMeter extends Meter {
   * @param telegram
   *   Telegram to be processed.
   * @options
-  *    
+  *
   * @return boolean succeed
   */
   processTelegramData(telegram, options = {}) {
@@ -53,7 +53,7 @@ class WirelessMBusMeter extends Meter {
     if (!this.passTelegram(telegram))
       return false;
 
-    // Process ELL    
+    // Process ELL
     telegram.setValues(this.fetchData(packet, this.getELLMap()));
     return true;
   }
@@ -80,7 +80,7 @@ class WirelessMBusMeter extends Meter {
       return false;
 
     let meterAddress = buffer.toString('hex');
-    
+
     return this._meterData.has(meterAddress) ?
       this._meterData.get(meterAddress) : false;
   }
@@ -88,7 +88,7 @@ class WirelessMBusMeter extends Meter {
   /**
   * Returns instructions how to map telegram data packet to extended data link
   * layer.
-  * 
+  *
   * @return mapping
   *   Object with mapping details
   */
@@ -208,7 +208,7 @@ class WirelessMBusMeter extends Meter {
   */
   getVersionField(telegram) {
     let values = telegram.getValues();
-    
+
     return values.has('BLOCK1_VERSION') ?
       values.get('BLOCK1_VERSION') : null;
   }

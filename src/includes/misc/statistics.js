@@ -37,7 +37,6 @@ class Statistics {
   getMeterStats(meter, telegram) {
     // See if telegram has been initialized yet
     let address = meter.getAddressField(telegram).toString('hex');
-
     let currentValue = meter.getMeterValue(telegram);
     let currentTargetValue = meter.getMeterTargetValue(telegram);
 
@@ -47,8 +46,10 @@ class Statistics {
       this._stasts[address] = {
         // Meter address
         address: address,
-        // Meter identification
-        description: meter.describeMeter(telegram), 
+        // Meter device type
+        deviceType: meter.getDeviceType(telegram),
+        // Meter description
+        description: meter.describeMeter(telegram),
         // Updated timestamp
         updated: Date.now(),
         // Timestamp of first measure
@@ -79,12 +80,12 @@ class Statistics {
     this._stasts[address]['lastMeasure'] = meter.getTelegramTimestamp(telegram);
     this._stasts[address]['currentValue'] = currentValue;
     this._stasts[address]['currentTargetValue'] = currentTargetValue;
-    
+
     this._stasts[address]['monthUsage'] = currentValue - currentTargetValue;
 
     this._stasts[address]['deltaValue'] = currentValue -
         this._stasts[address]['initValue'] ;
-    
+
     this._stasts[address]['deltaTargetValue'] = currentTargetValue -
         this._stasts[address]['initTargetValue'];
 

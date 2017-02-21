@@ -42,7 +42,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     // If AES key is not provided directly, try to load it from meter data
     if (!options.hasOwnProperty('aes')) {
       let meterData = this.getMeterData(telegram);
-      
+
       if (meterData && meterData.hasOwnProperty('aes'))
         options['aes'] = meterData['aes'];
     }
@@ -78,12 +78,28 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   * @return label
   */
   describeMeterData(meterData = false) {
+    if (!meterData)
+      return 'unknown';
+
     const types = {
       '06': 'VolumeHeat',
       '16': 'VolumeCold'
     }
-    return meterData ?
-      meterData['label'] + " (" + types[meterData['deviceType']] +")" : 'unknown meter';    
+
+    let meterType = types.hasOwnProperty(meterData['deviceType']) ?
+      types[meterData['deviceType']] : "unknown";
+    return `${meterData['label']} (${meterType})`;
+  }
+
+  /**
+  * Describe device type.
+  *
+  * @param telegram
+  * @return label
+  */
+  getDeviceType(telegram) {
+    let meterData = this.getMeterData(telegram);
+    return meterData ? meterData['deviceType'] : 'unknown';
   }
 
   /**
@@ -96,7 +112,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   *   Application header, indicates application data payload type.
   *
   * DATA-field
-  *   
+  *
   * CC-FIELD (1 byte)
   *   ???
   *
@@ -198,7 +214,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   }
 
   /**
-  * Extract meter 
+  * Extract meter
   *
   * @param telegram
   * @return telegram
@@ -248,7 +264,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
       .get('BLOCK2_ENCRYPTED_ELL_DATA');
 
     let initializationVector = this.getIV(telegram);
-    return this.decryptBuffer(encryptedData, AESKey, initializationVector);    
+    return this.decryptBuffer(encryptedData, AESKey, initializationVector);
   }
 
   /**
@@ -302,7 +318,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
       'BLOCK3_FRAME_TYPE': {
         start: 2,
         length: 1
-        }      
+        }
     });
 
     let frameTypeCode = fV.get('BLOCK3_FRAME_TYPE').toString('hex');
@@ -324,7 +340,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
           'BLOCK3_FRAME_TYPE': {
             start: 2,
             length: 1
-            },      
+            },
           'BLOCK3_EXTRA_CRC': {
             start: 3,
             length: 4
@@ -356,7 +372,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
           'BLOCK3_FRAME_TYPE': {
             start: 2,
             length: 1
-            },      
+            },
           'DATA_RECORD_1_DIF': {
             start: 3,
             length: 1
@@ -398,7 +414,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
             length: 4
             },
           });
-        break;        
+        break;
     }
   }
 
@@ -411,7 +427,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getMeterValue(telegram) {
     let values = telegram.getValues();
-  
     return values.has('DATA_RECORD_2_VALUE') ?
       this.parseMeterValue(values.get('DATA_RECORD_2_VALUE').readUInt32LE()) : null;
   }
@@ -423,7 +438,6 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   */
   getMeterTargetValue(telegram) {
     let values = telegram.getValues();
-
     return values.has('DATA_RECORD_3_VALUE') ?
       this.parseMeterValue(values.get('DATA_RECORD_3_VALUE').readUInt32LE()) : null;
   }

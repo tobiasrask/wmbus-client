@@ -16,7 +16,7 @@ class LogWriter extends Logger {
   */
   constructor(options = {}) {
     super();
-    
+
     if (!options.hasOwnProperty('logFile'))
       throw new Error("Log file was not provided for writer")
 

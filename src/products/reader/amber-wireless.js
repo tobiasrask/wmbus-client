@@ -17,16 +17,16 @@ class AmberWirelessReader extends WMBusReader {
   * Constructor
   *
   * @param options
-  *   source Source file to read data from  
+  *   source Source file to read data from
   * @param buffer
   *   Data buffer to send data
   */
   constructor(options = {}) {
     super(options);
-    
+
     this._buffer = options.hasOwnProperty('buffer') ?
       options.buffer : false;
-    
+
     this._serialPortPath = options.hasOwnProperty('serialPortPath') ?
       options.serialPortPath : false;
 
@@ -85,9 +85,9 @@ class AmberWirelessReader extends WMBusReader {
 
 /**
 * Telegram Stream handles processing of imput data packets.
-*/  
+*/
 class TelegramStrem extends Transform {
- 
+
   /**
   * Constructor.
   *
@@ -116,7 +116,7 @@ class TelegramStrem extends Transform {
 
     while (proceed) {
       // Find telegram start by comparing start hex code xFF.
-      if (this._frameLength < 0) {        
+      if (this._frameLength < 0) {
         for (var i = 0; i < (data.length - 2); i++) {
           if (data[i] == self._startByte[0]) {
             // Remove leading bytes, since they are not part of this telegram
@@ -132,7 +132,7 @@ class TelegramStrem extends Transform {
       var frameLength = this._frameLength ? this._frameLength : -1;
 
       if (frameLength > 0 && data.length >= frameLength) {
-        // Validate raw telegram data 
+        // Validate raw telegram data
         var telegramData = data.slice(0, frameLength);
 
         if (self.validateChecksum(telegramData)) {
@@ -185,13 +185,13 @@ class TelegramStrem extends Transform {
   */
   countChecksum(buffer, numBits) {
     let cs = buffer.slice(0, 1);
-    
+
     if (numBits === undefined)
       numBits = buffer.length;
-  
+
     for (var i = 1; i < numBits; i++)
       cs = xor(cs, buffer.slice(i, (i + 1)));
-  
+
     return cs;
   }
 
@@ -205,13 +205,13 @@ class TelegramStrem extends Transform {
   bufferEquals(a, b) {
     if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b))
       return undefined;
- 
+
     if (typeof a.equals === 'function')
       return a.equals(b);
-    
+
     if (a.length !== b.length)
       return false;
-    
+
     for (var i = 0; i < a.length; i++)
       if (a[i] !== b[i])
         return false;
