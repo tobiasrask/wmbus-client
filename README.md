@@ -23,7 +23,7 @@ from meter type and manufacturer. Usually large amount of information is coded
 into few bytes and it might not be easy to find out how the data should be
 decoded back to something meaninful.
 
-Usually the payload of telegram is encrypted using AES and and you need the
+Usually the payload of telegram is encrypted using AES and you need the
 meter specific secret key to be able to decrypt the data.
 
 
@@ -79,13 +79,57 @@ Please contribute to get more readers and meters.
 
 ## Example application
 
-Source repository contains one simple example application. Run application with
-command:
+This repository contains simple example application to demonstrate how to use
+reader. Application just collects data and prints out the readings.
+Collected data is also stored to csv log gile.
+
+To collect data, run application with command:
 
 ```js
     $ READER_METHOD=collect node run-consumption-example.js
 ```
 
+This will create a log file using current date timestamp and stores meter telegram.
+
+To analyze overall consumption from old stored log files, you can start app with
+environement value 'log'. This will read telegrams from log files, and prints out
+the overall consumption from very first telegram to latest one.
+
+Note: At the moment you need to manually provide a list of log files, see
+configuarion examples below.
+
+```js
+    $ READER_METHOD=log node run-consumption-example.js
+```
+
+
+Example application contains some configuration:
+
+```js
+let example = new Example().run({
+  // Meter configuration path
+  configurationPath: './../../data/meters.json',
+  // Log writer path.
+  // The extension will be .log and there will be date based suffix.
+  logWriterPath: './../../data/consumption-export',
+  // Serial port path
+  serialPortPath: '/dev/cu.usbserial-2701A795',
+  // Interval to check buffer status
+  bufferInterval: 20,
+  // Preview interval
+  previewInterval: 60000,
+  // If READER_METHOD env variable is 'log', we just read provided log files and
+  // print out the total consumption between first and last reading.
+  logReaderSource: [
+    './../../data/consumption-export--20170103.log'
+    './../../data/consumption-export--20180114.log',
+    ],
+  // CSV log path
+  csvFile: `./../../composed/composed--${moment(Date.now()).format("YYYYMMDD-HHmmss")}.csv`,
+  // Reader type: 'collect' or 'log'
+  readerType: process.env.READER_METHOD ? process.env.READER_METHOD : 'collect'
+  }
+```
 
 
 

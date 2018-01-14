@@ -155,7 +155,8 @@ let example = new Example().run({
   bufferInterval: 20,
   // Preview interval
   previewInterval: 60000,
-  // Log reader path
+  // If READER_METHOD env variable is 'log', we just read provided log files and
+  // print out the total consumption between first and last reading.
   logReaderSource: [
     './../../data/consumption-export--20160131.log',
     './../../data/consumption-export--20170103.log'

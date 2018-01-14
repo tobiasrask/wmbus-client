@@ -41,12 +41,12 @@ class AmberWirelessReader extends WMBusReader {
     let self = this;
     let telegramStream = new TelegramStrem();
 
-    let SerialPort = require("serialport").SerialPort;
+    let SerialPort = require("serialport");
 
     let serialPort = new SerialPort(this._serialPortPath, {
-      baudrate: 9600,
-      databits: 8,
-      stopbits: 1,
+      baudRate: 9600,
+      dataBits: 8,
+      stopBits: 1,
       parity: 'none'
     });
 
