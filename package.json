@@ -1,6 +1,6 @@
 {
   "name": "wmbus-client",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Wireless m-bus client for NodeJS..",
   "main": "lib/index.js",
   "scripts": {
