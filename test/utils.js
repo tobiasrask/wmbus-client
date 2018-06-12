@@ -3,7 +3,7 @@ import crypto from "crypto"
 class Utils {
 
   /**
-  * Build (semi) uuid. Warning regarding to security, result is not real 
+  * Build (semi) uuid. Warning regarding to security, result is not real
   * uuid since we use basic random generator.
   *
   * @return uuid

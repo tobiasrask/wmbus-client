@@ -6,7 +6,7 @@ describe('Telegram base class', () => {
 
   describe('Test telegram initialization' , () => {
     it('It should initialize without errors', done => {
-      
+
       let packet = 'probe:' + Utils.getUUID();
       let telegram = new Telegram(packet);
 
@@ -14,7 +14,7 @@ describe('Telegram base class', () => {
         return done(new Error("Telegram didn't return expected packet"));
 
       // TODO: Test telegram setValue /setValue
-      
+
       done();
     })
   });

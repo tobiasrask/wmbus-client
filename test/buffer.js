@@ -6,10 +6,10 @@ describe('Data buffer', () => {
   describe('Test buffer initialization' , () => {
     it('It should initialize without errors', done => {
       let buffer = new DataBuffer();
-      
+
       if (buffer.fetch() != null)
         return done(new Error("Empty buffer didn't return null value"));
-      
+
       done();
     })
   });
@@ -31,7 +31,7 @@ describe('Data buffer', () => {
 
       let errors = false;
 
-      packets.map(item => {        
+      packets.map(item => {
         if (item != buffer.fetch())
           errors = true;
       });
@@ -41,7 +41,7 @@ describe('Data buffer', () => {
 
       if (buffer.fetch() != null)
         return done(new Error("Empty buffer didn't return null value"));
-      
+
       done();
     })
   });

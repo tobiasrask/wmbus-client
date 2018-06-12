@@ -16,14 +16,14 @@ describe('Tests for WirelessMBusTelegram class', () => {
 
       if (telegram.getPacket() != packet)
         return done(new Error("Telegram didn't return expected packet"));
-      
+
       done();
     })
   });
 
   describe('Test telegram general processing' , () => {
     it('It should return telegram basic info like meter address', done => {
-      
+
       let packet = new DataPacket(Buffer("21442d2c0011223344556677000000", "hex"));
       let telegram = new WirelessMBusTelegram(packet);
 

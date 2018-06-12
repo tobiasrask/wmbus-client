@@ -6,6 +6,7 @@ import LogReader from "./../src/includes/reader/log-reader"
 import DataBuffer from "./../src/includes/buffer/data-buffer"
 
 import path from "path"
+import fs  from "fs"
 import assert from "assert"
 import Utils from './utils'
 
@@ -13,7 +14,7 @@ describe('Tests for KamstrupMultical21Meter', () => {
 
   describe('Test telegram initialization' , () => {
     it('It should initialize without errors', done => {
-      let meter = KamstrupMultical21Meter.getInstance();      
+      let meter = KamstrupMultical21Meter.getInstance();
       done();
     })
   });
@@ -73,27 +74,24 @@ describe('Tests for KamstrupMultical21Meter', () => {
       done();
     })
   });
-  
+
   describe('Test reading telegrams from log file' , () => {
     it('It should read an decrypt telegrams from log file', done => {
 
-
       // This test requires external AES-key files. Keys are not included with
-      //git repository, and will be skipped if following file doesn't exits.
-      let meterSettings = path.join(__dirname, './../../data/meters.json');
+      // git repository, and will be skipped if following file doesn't exits.
+      let meterSettings = path.join(__dirname, './../../data/meters-test.json');
+
+      if (!fs.existsSync(meterSettings)) {
+        // This test requires external AES-key files and real log data.
+        // GIT repository doesn't contain this data, so let's skip this test.
+        return done();
+      }
 
 
-      //let testBuffer = Buffer("03131531", "hex")
-      //console.log("Test buffer...");
-      //console.log(testBuffer.readUInt32LE());
-      //console.log(testBuffer.readUIntLE(0, 4));
-      //done();
-      //return;
-   
       // TODO: Make this promise based implementation...
       MeterImporter.loadMeterSettings(meterSettings, (err, meterData) => {
-        // Skip test if keyfile is not included
-        if (err) return done();
+        if (err) return done(err);
 
         let meter = KamstrupMultical21Meter.getInstance();
 
@@ -104,16 +102,14 @@ describe('Tests for KamstrupMultical21Meter', () => {
 
         // Load test data log file, which contains list of keyed values
         let logFile = path.join(__dirname, './test_data/log-reader-test-data.log');
-
         let buffer = new DataBuffer();
         let reader = new LogReader({ source: logFile, buffer: buffer });
-        
+
         // Enabled source
         reader.enableSource();
 
         let interval = setInterval(() => {
           // See if reader is ready yet
-
           if (!reader.isReady())
             return;
 
@@ -149,7 +145,7 @@ describe('Tests for KamstrupMultical21Meter', () => {
 
           if (buffer.fetch() != null)
             return done(new Error("Empty buffer didn't return null value"));
-          
+
           done();
         }, 10);
       });
