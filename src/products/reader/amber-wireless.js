@@ -102,7 +102,7 @@ class TelegramStrem extends Transform {
     this._bufferedChunk = false;
 
     // Start byte for Amber Wireless
-    this._startByte = new Buffer('FF', 'hex');
+    this._startByte = Buffer.alloc(1,'FF', 'hex');
   }
 
   /**
