@@ -2,6 +2,7 @@ import WirelessMBusTelegram from "./../src/includes/telegram/wmbus-telegram"
 import KamstrupMultical21Meter from "./../src/products/meters/kamstrup-multical-21-meter"
 import DataPacket from "./../src/includes/buffer/data-packet"
 import AmberWirelessReader from "./../src/products/reader/amber-wireless"
+import ImstReader from "./../src/products/reader/Imst"
 import MeterImporter from "./../src/includes/meter/meter-importer"
 import DataBuffer from "./../src/includes/buffer/data-buffer"
 import LogWriter from "./../src/includes/logger/log-writer"
@@ -34,7 +35,7 @@ class Example {
       if (err)
         throw new Error("Unable to load meter settings");
       self.prepareMeter(options, meterData);
-    });
+      });
     return this;
   }
 
@@ -79,7 +80,7 @@ class Example {
 
       console.log("Start Wireless M-Bus reader...");
 
-      reader = new AmberWirelessReader({
+      reader = new ImstReader({
         buffer: buffer,
         serialPortPath: options.serialPortPath
       });
@@ -150,7 +151,7 @@ let example = new Example().run({
   // suffix.
   logWriterPath: './../../data/consumption-export',
   // Serial port path
-  serialPortPath: '/dev/cu.usbserial-2701A795',
+  serialPortPath: 'com5',
   // Interval to check buffer status
   bufferInterval: 20,
   // Preview interval
