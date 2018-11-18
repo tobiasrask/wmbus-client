@@ -29,9 +29,10 @@
     "mocha": "^5.2.0",
     "moment": "^2.22.2",
     "readable-stream": "^2.3.6",
-    "serialport": "^6.2.0"
+    "serialport": "^6.2.2"
   },
   "dependencies": {
-    "domain-map": "0.0.8"
+    "domain-map": "0.0.8",
+    "node-crc": "^1.2.2"
   }
 }

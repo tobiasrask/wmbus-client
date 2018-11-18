@@ -2,7 +2,7 @@ import WMBusReader from "./../../includes/reader/wmbus-reader"
 import DataSource from "./../../includes/reader/data-source"
 import DataPacket from "./../../includes/buffer/data-packet"
 import stream from 'stream'
-import xor  from 'bitwise-xor'
+
 
 // Node v0.10+ uses native Transform, else polyfill
 const Transform = stream.Transform ||
@@ -33,7 +33,7 @@ class ImstReader extends WMBusReader {
     this._done = false;
     this._processing = false;
   }
-
+    
   /**
   * Implementation of enableSource().
   */
@@ -42,7 +42,7 @@ class ImstReader extends WMBusReader {
     let telegramStream = new TelegramStrem();
 
     let SerialPort = require("serialport");
-
+     
     let serialPort = new SerialPort(this._serialPortPath, {
       baudRate: 57600,
       dataBits: 8,
@@ -135,13 +135,30 @@ class TelegramStrem extends Transform {
       var frameLength = this._frameLength ? this._frameLength : -1;
 
       if (frameLength > 0 && data.length >= frameLength) {
-        // Validate raw telegram data
-        var telegramData = data.slice(0, frameLength);
-          //only accept RadioLink messages
-          if ((data[1] & 0x0F) == 0x02) {
-          // This is valid telegram, register and remove
-          this.push(telegramData.slice(3));
-          data = data.slice(frameLength - 4);
+        // Extract the telegram
+          if ((data[1] & 0x80)) {
+              var telegramData = data.slice(0, frameLength+2);
+          } else {
+              var telegramData = data.slice(0, frameLength);
+          }
+          // Only accept RadioLink messages
+          if ((telegramData[1] & 0x0F) == 0x02) {
+              // Check if checksum is proviced, if so check it else just accept it
+              if ((telegramData[1] & 0x80)) {
+                  // This is valid telegram, register and remove
+                  if (self.validateChecksum(telegramData.slice(1, frameLength + 2), telegramData.slice(frameLength, frameLength + 2))) {
+                      this.push(telegramData.slice(3, frameLength - 1));
+                      data = data.slice(frameLength - 4);
+                  } else {
+                      data = data.slice(1);
+                  }
+                  
+              } else {
+                  // This is valid telegram, register and remove
+                  this.push(telegramData.slice(3));
+                  data = data.slice(frameLength - 4);
+              }
+          
         } else {
           // This is not valid telegram, remove leading value
           data = data.slice(1);
@@ -166,30 +183,14 @@ class TelegramStrem extends Transform {
     cb();
   }
 
+    validateChecksum(data, checksum) {
+        const crc = require("node-crc");
+        var checkValue = crc.crc(16, true, 0x8408, 0x0000, 0xFFFF, 0x00, 0xffff, 0, data);
 
-  /**
-  * Check if two given buffers equals.
-  *
-  * @param a
-  * @param b
-  * @return boolean is equal
-  */
-  bufferEquals(a, b) {
-    if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b))
-      return undefined;
+        return checkValue[0] == 15 && checkValue[1] == 71;
+    }
 
-    if (typeof a.equals === 'function')
-      return a.equals(b);
 
-    if (a.length !== b.length)
-      return false;
-
-    for (var i = 0; i < a.length; i++)
-      if (a[i] !== b[i])
-        return false;
-
-    return true;
-  }
 }
 
 export default ImstReader;
