@@ -36,8 +36,8 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
       return false;
     }
 
-    telegram.setValue('BLOCKX_FN', Buffer('0000', "hex"));
-    telegram.setValue('BLOCKX_BC', Buffer('00', "hex"));
+    telegram.setValue('BLOCKX_FN', Buffer.alloc(2,'0000', "hex"));
+    telegram.setValue('BLOCKX_BC', Buffer.alloc(1,'00', "hex"));
 
     // If AES key is not provided directly, try to load it from meter data
     if (!options.hasOwnProperty('aes')) {
@@ -258,7 +258,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     if (!options.hasOwnProperty('aes'))
       return false;
 
-    let AESKey = Buffer(options['aes'], 'hex');
+    let AESKey = Buffer.alloc(options['aes'].length/2, options['aes'], 'hex');
 
     let encryptedData = this.getEncryptedELLData(telegram)
       .get('BLOCK2_ENCRYPTED_ELL_DATA');

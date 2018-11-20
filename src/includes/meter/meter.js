@@ -102,7 +102,7 @@ class Meter {
       packet.getBuffer() : packet;
 
     Object.keys(map).forEach(key => {
-      let value = Buffer(map[key].length);
+      let value = Buffer.alloc(map[key].length);
       value.fill(0);
 
       // Apply buffer data from packet
