@@ -114,7 +114,17 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   * DATA-field
   *
   * CC-FIELD (1 byte)
-  *   ???
+  * CC is a communication control field and is coded using the following bitmask
+  * Bit 7  |  Bit 6  |  Bit 5  |  Bit 4  |  Bit 3  |  Bit 2  |  Bit 1
+  * B-field| D-field | S-field | H-field | P-field | A-field | Reserved
+  * 
+  * B-field,  when  set  to  1,  indicates  that the  sending  device  implements  bidirectional communication
+  * D-field controls  the  response  delay  of  the  responding  device,  indicating  whether  a fast (D-field set) or slow (D-field cleared) response delay should be used
+  * S-field, when set to 1, indicates a synchronized frame
+  * H-field, when set to 1, indicates that the frame has been relayed by a repeater
+  * P-field, when set to 1, indicates a high priority frame
+  * A-field (Accessibility) is used in conjunction with the B-field to specify when a meter enables radio reception after a frame transmission
+  * R-field (Repeated  Access) is  used  by  single  hop  repeaters  according  to  the  rules  in the EN 13757-5 specification
   *
   * ACC (1 byte)
   *   Access counter number, runs from 00 to ff.
