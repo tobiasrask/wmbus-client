@@ -94,11 +94,21 @@ class Example {
       if (!buffer.hasData())
         return;
       let telegram = new WirelessMBusTelegram(buffer.fetch());
-      meter.processTelegramData(telegram);
+        meter.processTelegramData(telegram);
+
+      let infoDry = meter.getInfoCodeDry(telegram);
+      let infoReverse = meter.getInfoCodeReverse(telegram);
+      let infoBurst = meter.getInfoCodeBurst(telegram);
+      let infoLeak = meter.getInfoCodeLeak(telegram);
+      let durationDry = meter.getInfoCodeDryDuration(telegram);
+      let durationReverse = meter.getInfoCodeReverseDuration(telegram);
+      let durationBurst = meter.getInfoCodeBurstDuration(telegram);
+      let durationLeak = meter.getInfoCodeLeakDuration(telegram);
+
       // Just write data to console
       let stats = statistics.getMeterStats(meter, telegram);
       console.log(`${stats.description} ${stats.deviceType}, ${stats.initTargetValue} -> ${stats.currentValue} = ${stats.monthUsage}, delta: ${stats.deltaTargetValue} -> ${stats.deltaValue}`);
-
+      console.log(`Info codes: Leak: ${infoLeak} (${durationLeak}), Dry: ${infoDry} (${durationDry}), Burst: ${infoBurst} (${durationBurst}), Reverse: ${infoReverse} (${durationReverse})`);
       // Write composed data to csv file, one row for one meter per day
       this.writeCSV(stats);
 

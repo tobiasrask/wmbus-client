@@ -452,6 +452,123 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
       this.parseMeterValue(values.get('DATA_RECORD_3_VALUE').readUInt32LE()) : null;
   }
 
+    getInfoCodeDry(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x01) != 0;
+        }
+        else
+            return null;
+      
+    }
+
+    getInfoCodeReverse(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x02) != 0;
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeLeak(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x04) != 0;
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeBurst(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x08) != 0;
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeDryDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x70) >> 4;
+            return this.transformDuration(infoDuration);
+           
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeReverseDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x0380) >> 7;
+            return this.transformDuration(infoDuration);
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeLeakDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x1C00) >> 10;
+            return this.transformDuration(infoDuration);
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeBurstDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x7000) >> 13;
+            return this.transformDuration(infoDuration);
+        }
+        else
+            return null;
+
+    }
+
+    transformDuration(durationCode) {
+        switch (durationCode) {
+            case 0:
+                return '0 hours';
+            case 1:
+                return '1-8 hours';
+            case 2:
+                return '9-24 hours';
+            case 3:
+                return '25-72 hours';
+            case 4:
+                return '73-168 hours';
+            case 5:
+                return '169-336 hours';
+            case 6:
+                return '337-504 hours';
+            case 7:
+                return '≥505 hours';
+            default:
+                return 'Invalid duration code';
+        }
+    }
+
+
   /**
   * Parse float value.
   *
