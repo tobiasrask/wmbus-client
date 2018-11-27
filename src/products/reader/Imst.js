@@ -147,8 +147,8 @@ class TelegramStrem extends Transform {
               if ((telegramData[1] & 0x80)) {
                   // This is valid telegram, register and remove
                   if (self.validateChecksum(telegramData.slice(1, frameLength + 2), telegramData.slice(frameLength, frameLength + 2))) {
-                      this.push(telegramData.slice(3, frameLength - 1));
-                      data = data.slice(frameLength - 4);
+                      this.push(telegramData.slice(3, frameLength));
+                      data = data.slice(frameLength - 3);
                   } else {
                       data = data.slice(1);
                   }
