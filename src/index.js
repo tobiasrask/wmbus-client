@@ -36,5 +36,5 @@ export { _DataBuffer as DataBuffer };
 */
 import _ImstReader from './products/reader/Imst';
 export { _ImstReader as ImstReader };
-import _AmberWirelessReader from './products/reader/anber-wireless';
+import _AmberWirelessReader from './products/reader/amber-wireless';
 export { _AmberWirelessReader as AmberWirelessReader };
