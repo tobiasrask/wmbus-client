@@ -30,6 +30,7 @@ class AmberWirelessReader extends WMBusReader {
     this._serialPortPath = options.hasOwnProperty('serialPortPath') ?
       options.serialPortPath : false;
 
+    this._enabled = false;    
     this._done = false;
     this._processing = false;
   }
@@ -56,6 +57,7 @@ class AmberWirelessReader extends WMBusReader {
 
     serialPort.on("open", () => {
       console.log('Connection opened');
+      this._enabled = true;
 
       serialPort.on('data', (data) => {
         // Push data to telegram stream
@@ -74,12 +76,28 @@ class AmberWirelessReader extends WMBusReader {
   }
 
   /**
+  * Disables the source after use
+  */
+  disableSource() {
+      let serialPort = this._serialPort;
+      serialPort.close();
+      this._enabled = false;
+  }
+
+  /**
   * Returns boolean value to indicate if source is ready.
   *
   * @return boolean is ready
   */
   isReady() {
     return this._done;
+  }
+
+  /**
+   * Returns boolean value to indicate if source is enabled 
+   */
+  isEnabled() {
+      return this._enabled;
   }
 }
 

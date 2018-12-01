@@ -30,3 +30,11 @@ export { _Telegram as Telegram };
 
 import _DataBuffer from './includes/buffer/data-buffer';
 export { _DataBuffer as DataBuffer };
+
+/**
+* Products
+*/
+import _ImstReader from './products/reader/Imst';
+export { _ImstReader as ImstReader };
+import _AmberWirelessReader from './products/reader/anber-wireless';
+export { _AmberWirelessReader as AmberWirelessReader };
