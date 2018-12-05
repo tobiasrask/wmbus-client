@@ -1,7 +1,8 @@
+var EventEmitter = require("events").EventEmitter;
 /**
 * Data source.
 */
-class DataSource {
+class DataSource extends EventEmitter {
   
 }
 

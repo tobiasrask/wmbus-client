@@ -3,7 +3,6 @@ import DataSource from "../../includes/reader/data-source"
 import DataPacket from "../../includes/buffer/data-packet"
 import stream from 'stream'
 
-
 // Node v0.10+ uses native Transform, else polyfill
 const Transform = stream.Transform ||
     require('readable-stream').Transform;
@@ -54,10 +53,17 @@ class ImstReader extends WMBusReader {
         this._serialPort = serialPort;
 
         serialPort.on("error", () => {
+            this.emit("error");
             console.log(`Unable to connect serial port: ${self._serialPortPath}`);
         });
 
+        serialPort.on("close", () => {
+            this.emit("disconnected");
+            console.log(`Port: ${self._serialPortPath} closed.`)
+        });
+
         serialPort.on("open", () => {
+            this.emit("connected");
             console.log('Connection opened');
             this._enabled = true;
             //setup the wbus reader for Link mode: C1 TF-B,  Device mode:Other, Send RSSI:no, Send Timestamp: no

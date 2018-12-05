@@ -51,11 +51,18 @@ class AmberWirelessReader extends WMBusReader {
       parity: 'none'
     });
 
-    serialPort.on("error", () => {
+      serialPort.on("error", () => {
+          this.emit("error");
       console.log(`Unable to connect serial port: ${self._serialPortPath}`);
     });
 
-    serialPort.on("open", () => {
+      serialPort.on("close", () => {
+          this.emit("disconnected");
+          console.log(`Port: ${self._serialPortPath} closed.`)
+      });
+
+      serialPort.on("open", () => {
+      this.emit("connected");
       console.log('Connection opened');
       this._enabled = true;
 
