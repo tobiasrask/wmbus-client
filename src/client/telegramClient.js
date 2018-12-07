@@ -12,7 +12,7 @@ class TelegramClient extends EventEmitter {
 
         super();
         //setup a buffer
-        let buffer = new DataBuffer();
+        let buffer = new DataBuffer({ disableStoring: true });
 
         //Create the reader based on the settings
         if (dongleType == "Imst") {
