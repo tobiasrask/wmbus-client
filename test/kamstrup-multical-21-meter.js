@@ -26,7 +26,7 @@ describe('Tests for KamstrupMultical21Meter', () => {
       let tests = require('./test_data/test-meters');
       let input = tests['kamstrup']['multical21'][0];
 
-      let packet = new DataPacket(Buffer(input['telegram'], "hex"));
+      let packet = new DataPacket(Buffer.from(input['telegram'], "hex"));
       let telegram = new WirelessMBusTelegram(packet);
 
       let meter = KamstrupMultical21Meter.getInstance();

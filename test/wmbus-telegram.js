@@ -11,7 +11,7 @@ describe('Tests for WirelessMBusTelegram class', () => {
   describe('Test telegram initialization' , () => {
     it('It should initialize without errors', done => {
 
-      let packet = new DataPacket(Buffer("21442d2c0011223344556677000000", "hex"));
+      let packet = new DataPacket(Buffer.from("21442d2c0011223344556677000000", "hex"));
       let telegram = new WirelessMBusTelegram(packet);
 
       if (telegram.getPacket() != packet)
@@ -24,7 +24,7 @@ describe('Tests for WirelessMBusTelegram class', () => {
   describe('Test telegram general processing' , () => {
     it('It should return telegram basic info like meter address', done => {
 
-      let packet = new DataPacket(Buffer("21442d2c0011223344556677000000", "hex"));
+      let packet = new DataPacket(Buffer.from("21442d2c0011223344556677000000", "hex"));
       let telegram = new WirelessMBusTelegram(packet);
 
       let meter = WirelessMBusMeter.getInstance();
