@@ -24,7 +24,6 @@ class Hummie1Meter extends WirelessMBusMeter {
     if (!super.processTelegramData(telegram, options)) {
       return false;
     }
-      telegram.setValue('BLOCK2_DECRYPTED_ELL_DATA', this.getEncryptedELLData(telegram).get('BLOCK2_ENCRYPTED_ELL_DATA')); // mon det er hele pakken??
       telegram.setValues(this.processTelegramValues(telegram, options)); //KJEP
     return true;
   }
@@ -111,6 +110,10 @@ class Hummie1Meter extends WirelessMBusMeter {
       'BLOCK2_ACC': {
         start: 12,
         length: 1
+      },
+      'BLOCK2_ELL_DATA': {
+          start: 18,
+          length: 24
         }
       };
   }
@@ -181,31 +184,12 @@ class Hummie1Meter extends WirelessMBusMeter {
   * @param telegram
   * @return telegram
   */
-    getDecryptedELLData(telegram) {
+    getELLData(telegram) {
     let values = telegram.getValues();
-    return values.has('BLOCK2_DECRYPTED_ELL_DATA') ?
-      values.get('BLOCK2_DECRYPTED_ELL_DATA') : null;
+    return values.has('BLOCK2_ELL_DATA') ?
+      values.get('BLOCK2_ELL_DATA') : null;
   }
 
- 
-  /**
-  * Returns encrypted ELL data.
-  *
-  * @param telegram
-  * @return data buffer
-  */
-  getEncryptedELLData(telegram) {
-    let packet = telegram.getPacket();
-    let startIndex = 18;
-    let length = packet.getBuffer().length - startIndex;
-
-    return this.fetchData(packet, {
-      BLOCK2_ENCRYPTED_ELL_DATA: {
-        start: startIndex,
-        length: length
-      }
-    });
-  }
 
   /**
   * Process telegram values
@@ -214,7 +198,7 @@ class Hummie1Meter extends WirelessMBusMeter {
   */
   processTelegramValues(telegram) {
     // Retrieve if this is short frame or long frame
-    let data = this.getDecryptedELLData(telegram);
+    let data = this.getELLData(telegram);
 
     // Get frame type
     let fV = this.fetchData(data, {
@@ -226,11 +210,11 @@ class Hummie1Meter extends WirelessMBusMeter {
 
     let frameTypeCode = fV.get('BLOCK3_FRAME_TYPE').toString('hex');
     
-    console.log('---');
-    console.log(frameTypeCode);
-    console.log(telegram.getPacket().getBuffer().toString('hex'));
-    console.log(this.getDecryptedELLData(telegram).toString('hex'));
-    console.log('-**-');
+    //console.log('---');
+    //console.log(frameTypeCode);
+    //console.log(telegram.getPacket().getBuffer().toString('hex'));
+    //console.log(this.getDecryptedELLData(telegram).toString('hex'));
+    //console.log('-**-');
     
       switch (frameTypeCode) {
           case '02':
