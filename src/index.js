@@ -50,3 +50,6 @@ export { _TelegramClient as TelegramClient };
 */
 import _KamstrupMultical21Meter from './products/meters/kamstrup-multical-21-meter';
 export { _KamstrupMultical21Meter as KamstrupMultical21Meter };
+
+import _Hummie1Meter from './products/meters/hummie1-meter';
+export { _Hummie1Meter as Hummie1Meter };
