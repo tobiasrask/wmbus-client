@@ -58,6 +58,7 @@ class AmberWirelessReader extends WMBusReader {
 
       serialPort.on("close", () => {
           this.emit("disconnected");
+          this._enabled = false;
           console.log(`Port: ${self._serialPortPath} closed.`)
       });
 
@@ -88,7 +89,6 @@ class AmberWirelessReader extends WMBusReader {
   disableSource() {
       let serialPort = this._serialPort;
       serialPort.close();
-      this._enabled = false;
   }
 
   /**

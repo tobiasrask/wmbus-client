@@ -90,7 +90,8 @@ class Example {
     reader.enableSource();
 
     // Process buffer data.
-    let interval = setInterval(() => {
+      let interval = setInterval(() => {
+          console.log(reader.isEnabled());
       if (!buffer.hasData())
         return;
       let telegram = new WirelessMBusTelegram(buffer.fetch());

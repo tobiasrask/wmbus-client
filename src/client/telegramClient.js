@@ -32,7 +32,7 @@ class TelegramClient extends EventEmitter {
 
         //if an listner hooks up to the emitter then with the data event then connect the source
         this.on("newListener", event => {
-            if ((this.listenerCount("data") > 0 || event == "data") && !this.isConnected()) {
+            if ((this.listenerCount("data") == 0 && event == "data") && !this.isConnected()) {
                 this.connect();
             }
         });
@@ -53,7 +53,7 @@ class TelegramClient extends EventEmitter {
             this.emit("error");
 
             //if it should be connected, then retry connection
-            if (this.shouldbeConnected) {
+            if (this.shouldbeConnected && !this.isConnected) {
                 var retryInterval = setInterval(() => {
                     clearInterval(retryInterval);
                     this.reader.enableSource();
