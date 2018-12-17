@@ -58,15 +58,15 @@ class ImstReader extends WMBusReader {
         });
 
         serialPort.on("close", () => {
-            this.emit("disconnected");
             this._enabled = false;
+            this.emit("disconnected");
             console.log(`Port: ${self._serialPortPath} closed.`)
         });
 
         serialPort.on("open", () => {
+            this._enabled = true;
             this.emit("connected");
             console.log('Connection opened');
-            this._enabled = true;
             //setup the wbus reader for Link mode: C1 TF-B,  Device mode:Other, Send RSSI:no, Send Timestamp: no
             var configBuff = Buffer.alloc(12, "A501030800030007b0000000", "hex");
             serialPort.write(configBuff);

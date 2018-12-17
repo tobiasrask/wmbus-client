@@ -57,15 +57,15 @@ class AmberWirelessReader extends WMBusReader {
     });
 
       serialPort.on("close", () => {
-          this.emit("disconnected");
           this._enabled = false;
+          this.emit("disconnected");
           console.log(`Port: ${self._serialPortPath} closed.`)
       });
 
       serialPort.on("open", () => {
+          this._enabled = true;
       this.emit("connected");
       console.log('Connection opened');
-      this._enabled = true;
 
       serialPort.on('data', (data) => {
         // Push data to telegram stream
