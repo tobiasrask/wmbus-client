@@ -26,7 +26,7 @@ describe('Tests for KamstrupMultical21Meter', () => {
       let tests = require('./test_data/test-meters');
       let input = tests['kamstrup']['multical21'][0];
 
-      let packet = new DataPacket(Buffer(input['telegram'], "hex"));
+      let packet = new DataPacket(Buffer.from(input['telegram'], "hex"));
       let telegram = new WirelessMBusTelegram(packet);
 
       let meter = KamstrupMultical21Meter.getInstance();
@@ -71,6 +71,29 @@ describe('Tests for KamstrupMultical21Meter', () => {
       if (meter.getMeterTargetValue(telegram) != 0)
         return done(new Error("Telegram meter target value test failed"));
 
+      if (meter.getInfoCodeDry(telegram) != false)
+        return done(new Error("Dry error info code test failed."));
+
+      if (meter.getInfoCodeLeak(telegram) != false)
+        return done(new Error("Leak error info code test failed."));
+
+      if (meter.getInfoCodeReverse(telegram) != false)
+        return done(new Error("Reverse error info code test failed."));
+
+      if (meter.getInfoCodeBurst(telegram) != false)
+        return done(new Error("Burst error info code test failed."));
+
+      if (meter.getInfoCodeDryDuration(telegram) != '0 hours')
+        return done(new Error("Dry error duration code test failed."));
+
+      if (meter.getInfoCodeLeakDuration(telegram) != '0 hours')
+        return done(new Error("Leak error duration code test failed."));
+
+      if (meter.getInfoCodeReverseDuration(telegram) != '0 hours')
+        return done(new Error("Reverse error duration code test failed."));
+
+      if (meter.getInfoCodeBurstDuration(telegram) != '0 hours')
+        return done(new Error("Burst error duration code test failed."));
       done();
     })
   });

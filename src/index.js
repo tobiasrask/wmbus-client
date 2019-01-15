@@ -30,3 +30,26 @@ export { _Telegram as Telegram };
 
 import _DataBuffer from './includes/buffer/data-buffer';
 export { _DataBuffer as DataBuffer };
+
+/**
+* Products
+*/
+import _ImstReader from './products/reader/Imst';
+export { _ImstReader as ImstReader };
+import _AmberWirelessReader from './products/reader/amber-wireless';
+export { _AmberWirelessReader as AmberWirelessReader };
+
+/**
+* Client
+*/
+import _TelegramClient from './client/telegramClient';
+export { _TelegramClient as TelegramClient };
+
+/**
+* Meters
+*/
+import _KamstrupMultical21Meter from './products/meters/kamstrup-multical-21-meter';
+export { _KamstrupMultical21Meter as KamstrupMultical21Meter };
+
+import _Hummie1Meter from './products/meters/hummie1-meter';
+export { _Hummie1Meter as Hummie1Meter };

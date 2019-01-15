@@ -59,9 +59,9 @@ class MeterImporter {
         // Build meter address
         let meterAddress = Buffer.concat([
           Meter.reverseBuffer(Meter.buildManufacturerId(row['manufacturer'])),
-          Meter.reverseBuffer(new Buffer(row['serial'], 'hex')),
-          new Buffer(row['version'], 'hex'),
-          new Buffer(row['deviceType'], 'hex')
+          Meter.reverseBuffer(Buffer.alloc(4, row['serial'], 'hex')),
+          Buffer.alloc(1, row['version'], 'hex'),
+          Buffer.alloc(1, row['deviceType'], 'hex')
         ]);
 
         // We use String keys as since Map requires original buffer to match

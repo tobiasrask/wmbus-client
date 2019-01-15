@@ -110,7 +110,7 @@ class LogReader extends DataSource {
           !rowData[1])
         return;
 
-      self._buffer.push(new DataPacket(Buffer(rowData[1], "hex"), {
+        self._buffer.push(new DataPacket(Buffer.alloc(rowData[1].length/2, rowData[1], "hex"), {
         timestamp: rowData[0]
       }));
     });

@@ -102,7 +102,7 @@ class Meter {
       packet.getBuffer() : packet;
 
     Object.keys(map).forEach(key => {
-      let value = Buffer(map[key].length);
+      let value = Buffer.alloc(map[key].length);
       value.fill(0);
 
       // Apply buffer data from packet
@@ -160,7 +160,7 @@ class Meter {
   * @return reverse buffer
   */
   static reverseBuffer(buffer) {
-    let t = new Buffer(buffer.length)
+    let t = Buffer.alloc(buffer.length)
     for (let i = 0, j = buffer.length - 1; i <= j; ++i, --j) {
       t[i] = buffer[j];
       t[j] = buffer[i];
@@ -199,7 +199,7 @@ class Meter {
                 (name.charCodeAt(2) - 64);
 
     return (0x0421 <= label && label <= 0x6b5a) ?
-      new Buffer(label.toString(16), 'hex') : false;
+      Buffer.alloc(2, label.toString(16), 'hex') : false;
   }
 }
 

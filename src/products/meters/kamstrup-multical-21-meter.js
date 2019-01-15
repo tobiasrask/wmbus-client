@@ -36,8 +36,8 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
       return false;
     }
 
-    telegram.setValue('BLOCKX_FN', Buffer('0000', "hex"));
-    telegram.setValue('BLOCKX_BC', Buffer('00', "hex"));
+    telegram.setValue('BLOCKX_FN', Buffer.alloc(2,'0000', "hex"));
+    telegram.setValue('BLOCKX_BC', Buffer.alloc(1,'00', "hex"));
 
     // If AES key is not provided directly, try to load it from meter data
     if (!options.hasOwnProperty('aes')) {
@@ -114,7 +114,17 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
   * DATA-field
   *
   * CC-FIELD (1 byte)
-  *   ???
+  * CC is a communication control field and is coded using the following bitmask
+  * Bit 7  |  Bit 6  |  Bit 5  |  Bit 4  |  Bit 3  |  Bit 2  |  Bit 1
+  * B-field| D-field | S-field | H-field | P-field | A-field | Reserved
+  * 
+  * B-field,  when  set  to  1,  indicates  that the  sending  device  implements  bidirectional communication
+  * D-field controls  the  response  delay  of  the  responding  device,  indicating  whether  a fast (D-field set) or slow (D-field cleared) response delay should be used
+  * S-field, when set to 1, indicates a synchronized frame
+  * H-field, when set to 1, indicates that the frame has been relayed by a repeater
+  * P-field, when set to 1, indicates a high priority frame
+  * A-field (Accessibility) is used in conjunction with the B-field to specify when a meter enables radio reception after a frame transmission
+  * R-field (Repeated  Access) is  used  by  single  hop  repeaters  according  to  the  rules  in the EN 13757-5 specification
   *
   * ACC (1 byte)
   *   Access counter number, runs from 00 to ff.
@@ -258,7 +268,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     if (!options.hasOwnProperty('aes'))
       return false;
 
-    let AESKey = Buffer(options['aes'], 'hex');
+    let AESKey = Buffer.alloc(options['aes'].length/2, options['aes'], 'hex');
 
     let encryptedData = this.getEncryptedELLData(telegram)
       .get('BLOCK2_ENCRYPTED_ELL_DATA');
@@ -441,6 +451,123 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     return values.has('DATA_RECORD_3_VALUE') ?
       this.parseMeterValue(values.get('DATA_RECORD_3_VALUE').readUInt32LE()) : null;
   }
+
+    getInfoCodeDry(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x01) != 0;
+        }
+        else
+            return null;
+      
+    }
+
+    getInfoCodeReverse(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x02) != 0;
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeLeak(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x04) != 0;
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeBurst(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            return (infoCodes & 0x08) != 0;
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeDryDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x70) >> 4;
+            return this.transformDuration(infoDuration);
+           
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeReverseDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x0380) >> 7;
+            return this.transformDuration(infoDuration);
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeLeakDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x1C00) >> 10;
+            return this.transformDuration(infoDuration);
+        }
+        else
+            return null;
+
+    }
+
+    getInfoCodeBurstDuration(telegram) {
+        let values = telegram.getValues();
+        if (values.has('DATA_RECORD_1_VALUE')) {
+            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoDuration = (infoCodes & 0x7000) >> 13;
+            return this.transformDuration(infoDuration);
+        }
+        else
+            return null;
+
+    }
+
+    transformDuration(durationCode) {
+        switch (durationCode) {
+            case 0:
+                return '0 hours';
+            case 1:
+                return '1-8 hours';
+            case 2:
+                return '9-24 hours';
+            case 3:
+                return '25-72 hours';
+            case 4:
+                return '73-168 hours';
+            case 5:
+                return '169-336 hours';
+            case 6:
+                return '337-504 hours';
+            case 7:
+                return '≥505 hours';
+            default:
+                return 'Invalid duration code';
+        }
+    }
+
 
   /**
   * Parse float value.

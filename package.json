@@ -1,6 +1,6 @@
 {
   "name": "wmbus-client",
-  "version": "0.1.0",
+  "version": "0.2.3",
   "description": "Wireless m-bus client for NodeJS..",
   "main": "lib/index.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "serialport": "^6.2.2"
   },
   "dependencies": {
-    "domain-map": "0.0.8"
+    "domain-map": "0.0.8",
+    "node-crc": "^1.2.2"
   }
 }

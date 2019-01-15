@@ -9,5 +9,14 @@
         "value": "25877968217e8e01000000000000000000bb49"
       }
     ]
+  },
+  "unknown": {
+    "hummie1": [
+      {
+        "description": "Telgram test for hummie1",
+        "telegram": "1d44335101000000011b8ca0667afa0000a00266dc0001fb1b3601fd48190266dc0001fb1b3601fd4819",
+        "value": "0266dc0001fb1b3601fd48190266dc0001fb1b3601fd4819"
+      }
+    ]
   }
 }

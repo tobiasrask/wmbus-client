@@ -8,11 +8,17 @@ class DataBuffer {
   /**
   * Construct buffer.
   */
-  constructor() {
+    constructor(options = {}) {
     // Link to first buffer item
     this._firstBufferItem = null;
     this._lastBufferItem = null;
     this._listeners = new Map();
+
+    //If option passed don't save buffer   
+    if (options.hasOwnProperty('disableStoring'))
+      this._disableStoring = options.disableStoring;
+    else
+      this._disableStoring = false;
   }
 
   /**
@@ -24,24 +30,26 @@ class DataBuffer {
   * @param options
   */
   push(packet) {
-    let bufferItem = new BufferItem(packet);
+    //if option was set when starting then don't store data
+    if (!this._disableStoring) {
+      let bufferItem = new BufferItem(packet);
     
-    if (this._firstBufferItem == null)
-      this._firstBufferItem = bufferItem;
+      if (this._firstBufferItem == null)
+        this._firstBufferItem = bufferItem;
 
-    if (this._lastBufferItem == null) {
-      this._lastBufferItem = bufferItem;
+      if (this._lastBufferItem == null) {
+        this._lastBufferItem = bufferItem;
 
-    } else {
-      this._lastBufferItem.setNext(bufferItem);
-      this._lastBufferItem = bufferItem;
-    }
-
-    // Notify listeners which extends onPush callback
-    this._listeners.forEach((listener, listenerKey) => {
-      if (listener.hasOwnProperty('onPush'))
-        listener.onPush(packet);
-    });
+      } else {
+        this._lastBufferItem.setNext(bufferItem);
+        this._lastBufferItem = bufferItem;
+      }
+  }
+  // Notify listeners which extends onPush callback
+  this._listeners.forEach((listener, listenerKey) => {
+    if (listener.hasOwnProperty('onPush'))
+      listener.onPush(packet);
+  });
   }
 
   /**

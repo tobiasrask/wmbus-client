@@ -30,6 +30,7 @@ class AmberWirelessReader extends WMBusReader {
     this._serialPortPath = options.hasOwnProperty('serialPortPath') ?
       options.serialPortPath : false;
 
+    this._enabled = false;    
     this._done = false;
     this._processing = false;
   }
@@ -50,11 +51,20 @@ class AmberWirelessReader extends WMBusReader {
       parity: 'none'
     });
 
-    serialPort.on("error", () => {
+      serialPort.on("error", () => {
+          this.emit("error");
       console.log(`Unable to connect serial port: ${self._serialPortPath}`);
     });
 
-    serialPort.on("open", () => {
+      serialPort.on("close", () => {
+          this._enabled = false;
+          this.emit("disconnected");
+          console.log(`Port: ${self._serialPortPath} closed.`)
+      });
+
+      serialPort.on("open", () => {
+          this._enabled = true;
+      this.emit("connected");
       console.log('Connection opened');
 
       serialPort.on('data', (data) => {
@@ -74,12 +84,27 @@ class AmberWirelessReader extends WMBusReader {
   }
 
   /**
+  * Disables the source after use
+  */
+  disableSource() {
+      let serialPort = this._serialPort;
+      serialPort.close();
+  }
+
+  /**
   * Returns boolean value to indicate if source is ready.
   *
   * @return boolean is ready
   */
   isReady() {
     return this._done;
+  }
+
+  /**
+   * Returns boolean value to indicate if source is enabled 
+   */
+  isEnabled() {
+      return this._enabled;
   }
 }
 
@@ -102,7 +127,7 @@ class TelegramStrem extends Transform {
     this._bufferedChunk = false;
 
     // Start byte for Amber Wireless
-    this._startByte = new Buffer('FF', 'hex');
+    this._startByte = Buffer.alloc(1,'FF', 'hex');
   }
 
   /**

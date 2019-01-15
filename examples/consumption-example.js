@@ -2,6 +2,7 @@ import WirelessMBusTelegram from "./../src/includes/telegram/wmbus-telegram"
 import KamstrupMultical21Meter from "./../src/products/meters/kamstrup-multical-21-meter"
 import DataPacket from "./../src/includes/buffer/data-packet"
 import AmberWirelessReader from "./../src/products/reader/amber-wireless"
+import ImstReader from "./../src/products/reader/Imst"
 import MeterImporter from "./../src/includes/meter/meter-importer"
 import DataBuffer from "./../src/includes/buffer/data-buffer"
 import LogWriter from "./../src/includes/logger/log-writer"
@@ -34,7 +35,7 @@ class Example {
       if (err)
         throw new Error("Unable to load meter settings");
       self.prepareMeter(options, meterData);
-    });
+      });
     return this;
   }
 
@@ -79,7 +80,7 @@ class Example {
 
       console.log("Start Wireless M-Bus reader...");
 
-      reader = new AmberWirelessReader({
+      reader = new ImstReader({
         buffer: buffer,
         serialPortPath: options.serialPortPath
       });
@@ -89,15 +90,26 @@ class Example {
     reader.enableSource();
 
     // Process buffer data.
-    let interval = setInterval(() => {
+      let interval = setInterval(() => {
+          console.log(reader.isEnabled());
       if (!buffer.hasData())
         return;
       let telegram = new WirelessMBusTelegram(buffer.fetch());
-      meter.processTelegramData(telegram);
+        meter.processTelegramData(telegram);
+
+      let infoDry = meter.getInfoCodeDry(telegram);
+      let infoReverse = meter.getInfoCodeReverse(telegram);
+      let infoBurst = meter.getInfoCodeBurst(telegram);
+      let infoLeak = meter.getInfoCodeLeak(telegram);
+      let durationDry = meter.getInfoCodeDryDuration(telegram);
+      let durationReverse = meter.getInfoCodeReverseDuration(telegram);
+      let durationBurst = meter.getInfoCodeBurstDuration(telegram);
+      let durationLeak = meter.getInfoCodeLeakDuration(telegram);
+
       // Just write data to console
       let stats = statistics.getMeterStats(meter, telegram);
       console.log(`${stats.description} ${stats.deviceType}, ${stats.initTargetValue} -> ${stats.currentValue} = ${stats.monthUsage}, delta: ${stats.deltaTargetValue} -> ${stats.deltaValue}`);
-
+      console.log(`Info codes: Leak: ${infoLeak} (${durationLeak}), Dry: ${infoDry} (${durationDry}), Burst: ${infoBurst} (${durationBurst}), Reverse: ${infoReverse} (${durationReverse})`);
       // Write composed data to csv file, one row for one meter per day
       this.writeCSV(stats);
 
@@ -150,7 +162,7 @@ let example = new Example().run({
   // suffix.
   logWriterPath: './../../data/consumption-export',
   // Serial port path
-  serialPortPath: '/dev/cu.usbserial-2701A795',
+  serialPortPath: 'com5',
   // Interval to check buffer status
   bufferInterval: 20,
   // Preview interval
