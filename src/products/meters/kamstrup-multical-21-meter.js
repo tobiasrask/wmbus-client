@@ -455,7 +455,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeDry(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             return (infoCodes & 0x01) != 0;
         }
         else
@@ -466,7 +466,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeReverse(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             return (infoCodes & 0x02) != 0;
         }
         else
@@ -477,7 +477,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeLeak(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             return (infoCodes & 0x04) != 0;
         }
         else
@@ -488,7 +488,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeBurst(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             return (infoCodes & 0x08) != 0;
         }
         else
@@ -499,7 +499,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeDryDuration(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             let infoDuration = (infoCodes & 0x70) >> 4;
             return this.transformDuration(infoDuration);
            
@@ -512,7 +512,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeReverseDuration(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             let infoDuration = (infoCodes & 0x0380) >> 7;
             return this.transformDuration(infoDuration);
         }
@@ -524,7 +524,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeLeakDuration(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             let infoDuration = (infoCodes & 0x1C00) >> 10;
             return this.transformDuration(infoDuration);
         }
@@ -536,7 +536,7 @@ class KamstrupMultical21Meter extends WirelessMBusMeter {
     getInfoCodeBurstDuration(telegram) {
         let values = telegram.getValues();
         if (values.has('DATA_RECORD_1_VALUE')) {
-            let infoCodes = this.parseMeterValue(values.get('DATA_RECORD_1_VALUE').readUInt16LE());
+            let infoCodes = values.get('DATA_RECORD_1_VALUE').readUInt16LE();
             let infoDuration = (infoCodes & 0x7000) >> 13;
             return this.transformDuration(infoDuration);
         }
