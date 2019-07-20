@@ -27,7 +27,7 @@
     "babel-preset-env": "^1.7.0",
     "bitwise-xor": "0.0.0",
     "mocha": "^5.2.0",
-    "moment": "^2.22.2",
+    "moment": "^2.24.0",
     "readable-stream": "^2.3.6",
     "serialport": "^6.2.2"
   },
