@@ -91,7 +91,7 @@ class Example {
 
     // Process buffer data.
       let interval = setInterval(() => {
-          console.log(reader.isEnabled());
+          console.log(reader.isEnabled);
       if (!buffer.hasData())
         return;
       let telegram = new WirelessMBusTelegram(buffer.fetch());
@@ -170,13 +170,12 @@ let example = new Example().run({
   // If READER_METHOD env variable is 'log', we just read provided log files and
   // print out the total consumption between first and last reading.
   logReaderSource: [
-    './../../data/consumption-export--20160131.log',
-    './../../data/consumption-export--20170103.log'
+    './../../data/consumption-export--20181208.log'
     ],
   // CSV log path
   csvFile: `./../../composed/composed--${moment(Date.now()).format("YYYYMMDD-HHmmss")}.csv`,
 
   // Reader type: 'collect' or 'log'
-  readerType: process.env.READER_METHOD ? process.env.READER_METHOD : 'collect'
+  readerType: process.env.READER_METHOD ? process.env.READER_METHOD : 'log'
   }
 );
