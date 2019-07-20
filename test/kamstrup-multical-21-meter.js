@@ -71,7 +71,7 @@ describe('Tests for KamstrupMultical21Meter', () => {
       if (meter.getMeterTargetValue(telegram) != 0)
         return done(new Error("Telegram meter target value test failed"));
 
-      if (meter.getInfoCodeDry(telegram) != false)
+      if (meter.getInfoCodeDry(telegram) != true)
         return done(new Error("Dry error info code test failed."));
 
       if (meter.getInfoCodeLeak(telegram) != false)
