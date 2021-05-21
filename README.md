@@ -12,7 +12,7 @@ making your environment to be part of Internet of Things.
 Wireless M-Bus meter is a device that measures for example water or gas consumption.
 After reading the value, meter sends this information in small packets called
 radio-telegrams. Radio frequency and telegram structure depends on your meter
-type and and so called Mode.
+type and so called Mode.
 
 To be able to collect data you need a physical wM-Bus reader. Reader is a device
 that listens radio telegrams and broadcast this data for your computer.
@@ -38,7 +38,7 @@ or it can be sent over the internet.
 To be able to parse data from certain telegram we need low level support for the
 particular manufacturer and meter. This is called "Meter component", which reads
 telegrams from our Reader component and converts the information from payload to
-something meaninful, like current temperature or total water concumption.
+something meaninful, like current temperature or total water consumption.
 
 
 ### Usage
@@ -70,38 +70,37 @@ If telegram payload is encrypted, you need also AES key.
 
 
 ### Supported meters and readers
-At the moment it supports Kamstrup Multical 21 water meters and AMBER wM-Bus
-Module AMB8465-M. It should work also with other Amber modules like AMB8426-M,
-AMB8626-M, AMB3626-M and AMB3636-M.
+At the moment we have support for `Kamstrup Multical 21` water meters and AMBER wM-Bus
+Module `AMB8465-M`. It should work also with other Amber modules like `AMB8426-M`,
+`AMB8626-M`, `AMB3626-M` and `AMB3636-M`.
 
 Please contribute to get more readers and meters.
 
 
 ## Example application
 
-This repository contains simple example application to demonstrate how to use
-reader. Application just collects data and prints out the readings.
-Collected data is also stored to csv log gile.
+This repository contains an example application to demonstrate how to use
+reader. Application collects data and prints out the readings.
+Collected data is also stored to csv log file.
 
-To collect data, run application with command:
+Run application with command:
 
 ```js
     $ READER_METHOD=collect node run-consumption-example.js
 ```
 
-This will create a log file using current date timestamp and stores meter telegram.
+This will create a log file using current date as prefix in filename and stores incoming telegrams.
 
-To analyze overall consumption from old stored log files, you can start app with
-environement value 'log'. This will read telegrams from log files, and prints out
+To analyze overall consumption from stored log files, you can start app with
+environement value 'log'. This will read telegrams from log files and prints out
 the overall consumption from very first telegram to latest one.
-
-Note: At the moment you need to manually provide a list of log files, see
-configuarion examples below.
 
 ```js
     $ READER_METHOD=log node run-consumption-example.js
 ```
 
+Note: At the moment you need to manually provide a list of log files, see
+configuarion examples below.
 
 Example application contains some configuration:
 
@@ -132,9 +131,8 @@ let example = new Example().run({
 ```
 
 
-
 ## How to get started with Wireless M-Bus
-To get started with wM-Bus, check out these links:
+To get started with wM-Bus check out these links:
 
 [Introduction to wireless M-Bus - PDF](http://pages.silabs.com/rs/634-SLU-379/images/introduction-to-wireless-mbus.pdf)
 
